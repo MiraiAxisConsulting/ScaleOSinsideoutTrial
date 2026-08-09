@@ -1112,6 +1112,168 @@ function handleMCClick(e){
 }
 document.addEventListener('click', handleMCClick);
 
+
+// ==============================================================
+// PDF / PRINT REPORT EXPORT
+// ==============================================================
+function exportPDF() {
+  var es = entSCI(), ecol = scol(es);
+  var now = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+  var er = entEstRate();
+  var assessed=0, complete=0;
+  DIMS.forEach(function(_,di){ DIMS[di].caps.forEach(function(_,ci){ if(capSCI(di,ci)>0)assessed++; if(capStat(di,ci)==='✅')complete++; }); });
+
+  // Build dimension rows
+  var dimRows = DIMS.map(function(d,di){
+    var ds=dimSCI(di), dc=scol(ds);
+    var assessed_c=0, complete_c=0;
+    d.caps.forEach(function(_,ci){ if(capSCI(di,ci)>0)assessed_c++; if(capStat(di,ci)==='✅')complete_c++; });
+    var er2=dimEstRate(di);
+    var barW=Math.round((ds/5)*100);
+    var barCol=ds<2?'#ef4444':ds<3?'#f97316':ds<4?'#eab308':'#22c55e';
+    return '<tr style="border-bottom:1px solid #e2e8f0">'
+      +'<td style="padding:8px 10px;font-weight:700;color:'+d.color+';font-size:12px">'+d.code+' '+d.icon+'</td>'
+      +'<td style="padding:8px 10px;font-size:11px;color:#374151">'+d.name+'</td>'
+      +'<td style="padding:8px 10px;text-align:center">'
+        +'<div style="background:#f1f5f9;border-radius:4px;height:12px;width:100px;display:inline-block;vertical-align:middle">'
+        +'<div style="background:'+barCol+';width:'+barW+'%;height:12px;border-radius:4px"></div></div>'
+        +' <span style="font-size:12px;font-weight:700;color:'+barCol+'">'+sl(ds)+'</span>'
+      +'</td>'
+      +'<td style="padding:8px 10px;text-align:center;font-size:11px;color:#6b7280">'+assessed_c+'/'+d.caps.length+'</td>'
+      +'<td style="padding:8px 10px;text-align:center;font-size:11px;color:'+(er2.pct!==null&&er2.pct>=75?'#22c55e':er2.pct!==null&&er2.pct>=50?'#f97316':'#ef4444')+'">'+(er2.pct!==null?er2.pct+'%':'—')+'</td>'
+      +'</tr>';
+  }).join('');
+
+  // Top gaps — capabilities below 2.5
+  var gaps=[];
+  DIMS.forEach(function(d,di){
+    d.caps.forEach(function(c,ci){
+      var cs=capSCI(di,ci);
+      if(cs>0&&cs<2.5) gaps.push({score:cs,name:c.name,dim:d.code,color:d.color});
+    });
+  });
+  gaps.sort(function(a,b){return a.score-b.score;});
+  var topGaps=gaps.slice(0,8).map(function(g){
+    var barW=Math.round((g.score/5)*100);
+    return '<tr style="border-bottom:1px solid #f1f5f9">'
+      +'<td style="padding:6px 10px;font-size:11px;font-weight:700;color:'+g.color+'">'+g.dim+'</td>'
+      +'<td style="padding:6px 10px;font-size:11px;color:#374151">'+g.name+'</td>'
+      +'<td style="padding:6px 10px;text-align:center">'
+        +'<div style="background:#fee2e2;border-radius:4px;height:10px;width:80px;display:inline-block;vertical-align:middle">'
+        +'<div style="background:#ef4444;width:'+barW+'%;height:10px;border-radius:4px"></div></div>'
+        +' <span style="font-size:11px;font-weight:700;color:#ef4444">'+sl(g.score)+'</span>'
+      +'</td>'
+      +'</tr>';
+  }).join('');
+  if(!topGaps) topGaps='<tr><td colspan="3" style="padding:10px;color:#94a3b8;text-align:center">No significant gaps identified</td></tr>';
+
+  // Strengths — top 5 capabilities above 3.5
+  var strengths=[];
+  DIMS.forEach(function(d,di){
+    d.caps.forEach(function(c,ci){
+      var cs=capSCI(di,ci);
+      if(cs>=3.5) strengths.push({score:cs,name:c.name,dim:d.code,color:d.color});
+    });
+  });
+  strengths.sort(function(a,b){return b.score-a.score;});
+  var topStr=strengths.slice(0,5).map(function(g){
+    return '<span style="display:inline-block;background:#f0fdf4;border:1px solid #86efac;border-radius:16px;padding:4px 12px;font-size:11px;color:#166534;margin:3px">✅ '+g.dim+' — '+g.name+' ('+sl(g.score)+')</span>';
+  }).join('');
+  if(!topStr) topStr='<span style="color:#94a3b8;font-size:11px">Complete more of the assessment to identify strengths</span>';
+
+  // SCI colour for display
+  var sciColor=es<2?'#ef4444':es<3?'#f97316':es<4?'#eab308':'#22c55e';
+
+  var html2='<!DOCTYPE html><html><head><meta charset="UTF-8">'
+    +'<title>ScaleOS™ Executive Report — '+now+'</title>'
+    +'<style>'
+    +'body{font-family:Arial,sans-serif;margin:0;padding:0;color:#1e293b;background:#fff}'
+    +'@media print{body{margin:0} .no-print{display:none} .page-break{page-break-before:always}}'
+    +'@page{margin:18mm 15mm;size:A4}'
+    +'.cover{background:linear-gradient(135deg,#0a1628 0%,#0f2040 100%);color:#fff;padding:48px 40px;min-height:220px}'
+    +'.cover-brand{font-size:13px;color:#f5a623;font-weight:700;letter-spacing:2px;margin-bottom:8px}'
+    +'.cover-title{font-size:32px;font-weight:900;margin:0 0 6px}'
+    +'.cover-sub{font-size:14px;color:#94a3b8;margin-bottom:24px}'
+    +'.cover-meta{font-size:12px;color:#64748b}'
+    +'.kpi-row{display:flex;gap:0;background:#f8fafc;border-bottom:2px solid #e2e8f0}'
+    +'.kpi{flex:1;padding:16px;text-align:center;border-right:1px solid #e2e8f0}'
+    +'.kpi:last-child{border-right:none}'
+    +'.kpi-val{font-size:26px;font-weight:900;margin-bottom:2px}'
+    +'.kpi-lbl{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px}'
+    +'.section{padding:20px 28px}'
+    +'.section-title{font-size:14px;font-weight:800;color:#0a1628;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #f5a623;display:flex;align-items:center;gap:8px}'
+    +'table{width:100%;border-collapse:collapse}'
+    +'th{background:#0a1628;color:#fff;padding:8px 10px;font-size:10px;font-weight:700;text-align:left;letter-spacing:0.5px}'
+    +'.sci-circle{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;border:4px solid '+sciColor+';margin:0 auto}'
+    +'.footer-bar{background:#0a1628;color:#64748b;font-size:9px;padding:8px 28px;text-align:center;margin-top:20px}'
+    +'</style></head><body>'
+
+    // Cover
+    +'<div class="cover">'
+    +'<div class="cover-brand">MIRAI AXIS CONSULTING LLP  ·  SCALEOS™</div>'
+    +'<div class="cover-title">Enterprise Capability Assessment</div>'
+    +'<div class="cover-sub">Executive Report  —  Confidential</div>'
+    +'<div class="cover-meta">Generated: '+now+'  ·  Enterprise SCI: <strong style="color:'+sciColor+'">'+sl(es)+'</strong>  ·  Dimensions Assessed: 11</div>'
+    +'</div>'
+
+    // KPI bar
+    +'<div class="kpi-row">'
+    +'<div class="kpi"><div class="kpi-val" style="color:'+sciColor+'">'+sl(es)+'</div><div class="kpi-lbl">Enterprise SCI</div></div>'
+    +'<div class="kpi"><div class="kpi-val" style="color:#60a5fa">'+assessed+'</div><div class="kpi-lbl">Caps Assessed</div></div>'
+    +'<div class="kpi"><div class="kpi-val" style="color:#22c55e">'+complete+'</div><div class="kpi-lbl">Fully Scored</div></div>'
+    +'<div class="kpi"><div class="kpi-val" style="color:#f5a623">'+(er.pct!==null?er.pct+'%':'—')+'</div><div class="kpi-lbl">Established %</div></div>'
+    +'<div class="kpi"><div class="kpi-val" style="color:#a78bfa">'+gaps.length+'</div><div class="kpi-lbl">Gaps Identified</div></div>'
+    +'</div>'
+
+    // Dimension Scorecard
+    +'<div class="section">'
+    +'<div class="section-title">📊 Dimension Scorecard</div>'
+    +'<table><thead><tr>'
+    +'<th>Code</th><th>Dimension</th><th>SCI Score</th><th>Assessed</th><th>Established</th>'
+    +'</tr></thead><tbody>'+dimRows+'</tbody></table>'
+    +'</div>'
+
+    // Top gaps
+    +'<div class="page-break"></div>'
+    +'<div class="section">'
+    +'<div class="section-title">🔴 Top Capability Gaps (Score below 2.5)</div>'
+    +'<table><thead><tr><th>Dimension</th><th>Capability</th><th>Score</th></tr></thead>'
+    +'<tbody>'+topGaps+'</tbody></table>'
+    +'</div>'
+
+    // Strengths
+    +'<div class="section">'
+    +'<div class="section-title">💪 Confirmed Strengths (Score 3.5+)</div>'
+    +'<div style="padding:8px 0">'+topStr+'</div>'
+    +'</div>'
+
+    // SCI interpretation
+    +'<div class="section" style="background:#f8fafc;border-radius:8px;margin:0 28px;padding:16px">'
+    +'<div style="display:flex;align-items:center;gap:24px">'
+    +'<div class="sci-circle"><span style="font-size:22px;font-weight:900;color:'+sciColor+'">'+sl(es)+'</span><span style="font-size:9px;color:#94a3b8">SCI</span></div>'
+    +'<div style="flex:1">'
+    +'<div style="font-size:13px;font-weight:700;color:#0a1628;margin-bottom:6px">Enterprise SCI Interpretation</div>'
+    +(es<1.5?'<p style="font-size:12px;color:#374151;margin:0">Score below 1.5: Most capabilities are not yet established. Significant foundation building required before growth initiatives.</p>'
+    :es<2.5?'<p style="font-size:12px;color:#374151;margin:0">Score 1.5–2.5: Partially established capabilities. Key processes exist informally. Structured capability building is the immediate priority.</p>'
+    :es<3.5?'<p style="font-size:12px;color:#374151;margin:0">Score 2.5–3.5: Operational capabilities in place. Evidence is building. Focus on deployment coverage and consistent measurement.</p>'
+    :es<4.5?'<p style="font-size:12px;color:#374151;margin:0">Score 3.5–4.5: Well-managed enterprise. Strong foundations. Focus on world-class practices and continuous improvement to reach 4.5+.</p>'
+    :'<p style="font-size:12px;color:#374151;margin:0">Score 4.5+: World-class enterprise capability. Sustain excellence, share best practices, and focus on innovation-led growth.</p>')
+    +'</div></div>'
+    +'</div>'
+
+    // Footer
+    +'<div class="footer-bar" style="margin-top:24px">ScaleOS™ Enterprise Capability Assessment  ·  Mirai Axis Consulting LLP  ·  Confidential — Not for distribution  ·  '+now+'</div>'
+    +'</body></html>';
+
+  // Open in new window and trigger print
+  var win = window.open('','_blank','width=900,height=700');
+  win.document.write(html2);
+  win.document.close();
+  win.focus();
+  setTimeout(function(){ win.print(); }, 800);
+}
+
+
 // ==============================================================
 // TOAST
 // ==============================================================
@@ -1447,7 +1609,11 @@ function rRoad(){
 function rRepHub(){
   if(RT==='exec') return rExec();
   if(RT==='detail') return rDetail();
-  return '<div class="rhw"><div class="rht">Reports</div><div class="rhs">Select a report type to view</div>'
+  return '<div class="rhw">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'
+    +'<div><div class="rht">Reports</div><div class="rhs">Select a report type below, then save as PDF</div></div>'
+    +'<button onclick="exportPDF()" style="padding:11px 24px;background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,0.35)">📄 Save Report as PDF</button>'
+    +'</div>'
     +'<div class="rhg">'
     +'<div class="rhc" data-rt="exec"><div class="rhci">📊</div><div class="rhcn">Executive Report</div><div class="rhcd">High-level summary for leadership — Enterprise SCI, dimension scores, and top priorities</div></div>'
     +'<div class="rhc" data-rt="detail"><div class="rhci">📋</div><div class="rhcn">Detailed Assessment</div><div class="rhcd">Full capability breakdown with M, E, D scores across all 11 dimensions</div></div>'
