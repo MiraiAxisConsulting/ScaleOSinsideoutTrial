@@ -1500,7 +1500,6 @@ function openDimActions(di){ RF='d'+di; gv('road'); }
 // ==============================================================
 function rMain(){
   var el=document.getElementById('MC');
-  if(!el) return;
   if(V==='dash'){ el.innerHTML=rDash(); return; }
   if(V==='base'){ el.innerHTML=rBase(); return; }
   if(V==='road'){ el.innerHTML=rRoad(); return; }
@@ -1517,7 +1516,6 @@ function rMain(){
 // ==============================================================
 function rSB(){
   var el=document.getElementById('DL');
-  if(!el) return;
   el.innerHTML=DIMS.map(function(d,di){
     var s=dimSCI(di); var col=scol(s);
     var on=(DI===di&&V==='assess');
@@ -2243,7 +2241,6 @@ function closeSG(){
 initBL();
 initST();
 rSB();
-gv('dash');
 gv('dash');
 </script>
 <!-- Scoring Guide Modal -->
