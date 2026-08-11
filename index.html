@@ -1474,18 +1474,21 @@ function gv(v){
   });
   var bdg=document.getElementById('BDG');
   var rb=document.getElementById('RB');
-  bdg.style.display='none'; rb.style.display='none';
-  document.getElementById('TR').innerHTML='';
+  var tr=document.getElementById('TR');
+  if(bdg) bdg.style.display='none';
+  if(rb) rb.style.display='none';
+  if(tr) tr.innerHTML='';
   if(v==='assess'){
     bdg.style.display='inline-block'; rb.style.display='inline-block';
     var d=DIMS[DI]; bdg.textContent=d.code+' · '+d.name; bdg.style.color=d.color;
-    var tr=document.getElementById('TR');
+    var tr2=document.getElementById('TR');
+    if(!tr2) { rMain(); return; }
     ['assess','report'].forEach(function(t){
       var b=document.createElement('button');
       b.className='tt'+(AV===t?' on':'');
       b.textContent=t==='assess'?'📝 Assess':'📊 Dim Report';
       b.setAttribute('data-av',t);
-      tr.appendChild(b);
+      tr2.appendChild(b);
     });
   }
   rMain();
@@ -2210,6 +2213,9 @@ function startAssessment(){
       // Update topbar with company info
       var tb = document.getElementById('TB_CENTER');
       if(tb) tb.textContent = IK.company + ' · ' + IK.industry + ' · ' + IK.assessmentId;
+      // Re-render dashboard now that app is visible
+      rSB();
+      gv('dash');
     }, 500);
   }
 }
