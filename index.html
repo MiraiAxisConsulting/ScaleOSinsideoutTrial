@@ -447,7 +447,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 #intake-overlay{
   position:fixed;top:0;left:0;width:100%;height:100%;
   background:linear-gradient(135deg,#060d1a 0%,#0c1e38 50%,#071020 100%);
-  z-index:99998;display:none;overflow-y:auto;
+  z-index:99998;display:block;overflow-y:auto;
   opacity:0;transition:opacity 0.4s ease;
 }
 #intake-overlay.show{opacity:1;}
@@ -758,7 +758,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
  
  <div class="ct" id="MC"></div>
 </div>
-<
+<script>
 // ==============================================================
 // DATA
 // ==============================================================
@@ -2165,14 +2165,9 @@ function togglePWEye(){
 
 // Auto-focus password input on load
 window.addEventListener('load', function(){
-  // Auto-show intake form (password screen is bypassed for trials)
-  var ik = document.getElementById('intake-overlay');
-  if(ik) {
-    ik.style.display = 'block';
-    setTimeout(function(){ ik.classList.add('show'); ikCheck(); }, 50);
-  }
-  var inp=document.getElementById('pw-inp');
-  if(inp) setTimeout(function(){ inp.focus(); }, 100);
+  // Intake form is visible by default (CSS display:block)
+  // Just initialise the progress check
+  if(typeof ikCheck==='function') setTimeout(ikCheck, 100);
 });
 
 
@@ -2269,8 +2264,6 @@ window.addEventListener('load', function(){
 initBL();
 initST();
 rSB();
-gv('dash');
-);
 gv('dash');
 </script>
 </body>
