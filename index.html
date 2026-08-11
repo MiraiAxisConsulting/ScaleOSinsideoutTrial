@@ -515,6 +515,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 .ik-start-btn.ready:active{transform:scale(0.98)}
 .ik-not-ready-msg{font-size:12px;color:#7890a8;margin-top:10px}
 .ik-ready-msg{font-size:13px;color:#22c55e;margin-top:10px;font-weight:600}
+
+/* ── SCORING DEFINITIONS PANEL ── */
+.sdp{background:#050d1a;border:1px solid #1e293b;border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.sdp-title{font-size:12px;font-weight:700;color:#b8c7d4;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1e293b}
+.sdp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sdp-col{}
+.sdp-hdr{font-size:11px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.sdp-w{font-size:9px;background:#1e293b;padding:1px 6px;border-radius:8px;color:#64748b;font-weight:600}
+.sdp-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px}
+.sdp-n{width:20px;height:20px;border-radius:5px;background:#0f172a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;border:1px solid #1e293b;text-align:center;line-height:20px}
+.sdp-t{font-size:10.5px;color:#7890a8;line-height:1.4;padding-top:2px}
+.sdp-formula{margin-top:10px;padding-top:8px;border-top:1px solid #1e293b;font-size:11px;color:#64748b;text-align:center}
+.sdp-formula strong{color:#f5a623}
 </style>
 </head>
 <body>
@@ -606,8 +619,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
   </div>
 
   <!-- Section 3: Dimension Contacts -->
-  <div class="ik-section">
-   <div class="ik-sec-title">👥 Dimension Contacts <span style="font-size:12px;color:#7890a8;font-weight:500;margin-left:4px">— Person filling each dimension</span></div>
+  <div class="ik-section" style="display:none">iv class="ik-sec-title">👥 Dimension Contacts <span style="font-size:12px;color:#7890a8;font-weight:500;margin-left:4px">— Person filling each dimension</span></div>
    <div style="overflow-x:auto">
     <table class="ik-dim-table">
      <thead><tr>
@@ -700,7 +712,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 </div>
 
 <div id="T" class="toast"></div>
-<div class="app" id="main-app" style="display:flex">
+<div class="app" id="main-app" style="display:none">
 
 <!-- SIDEBAR -->
 <div class="sb">
@@ -721,7 +733,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
   <button class="nb" id="nv-assess" onclick="gv('assess')">📝 Assessment</button>
   <button class="nb" id="nv-road" onclick="gv('road')">🗺️ Roadmap</button>
   <button class="nb" id="nv-reps" onclick="gv('reps')">📋 Reports</button>
-  <button class="nb" id="nv-comb" onclick="gv('comb')">🔍 Combined Analysis</button>
  </div>
  <div class="sci-box">
   <div class="sci-ttl">Scoring Model</div>
@@ -747,9 +758,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
  
  <div class="ct" id="MC"></div>
 </div>
-</div>
-
-<script>
+<
 // ==============================================================
 // DATA
 // ==============================================================
@@ -1118,191 +1127,337 @@ document.addEventListener('click', handleMCClick);
 // PDF / PRINT REPORT EXPORT
 // ==============================================================
 function exportPDF() {
-  var es = entSCI(), ecol = scol(es);
-  var now = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
-  var er = entEstRate();
-  var assessed=0, complete=0;
+  var es=entSCI(), sciColor=es<2?'#ef4444':es<3?'#f97316':es<4?'#eab308':'#22c55e';
+  var now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+  var er=entEstRate();
+  var assessed=0,complete=0;
   DIMS.forEach(function(_,di){ DIMS[di].caps.forEach(function(_,ci){ if(capSCI(di,ci)>0)assessed++; if(capStat(di,ci)==='✅')complete++; }); });
 
-  // Build dimension rows for PDF
-  var dimRows = DIMS.map(function(d,di){
-    var ds=dimSCI(di), dc=scol(ds);
-    var assessed_c=0, complete_c=0;
-    d.caps.forEach(function(_,ci){ if(capSCI(di,ci)>0)assessed_c++; if(capStat(di,ci)==='✅')complete_c++; });
-    var er2=dimEstRate(di);
-    var barW=Math.round((ds/5)*100);
-    var barCol=ds<2?'#ef4444':ds<3?'#f97316':ds<4?'#eab308':'#22c55e';
-    return '<tr style="border-bottom:1px solid #e2e8f0">'
-      +'<td style="padding:8px 10px;font-weight:700;color:'+d.color+';font-size:12px">'+d.code+' '+d.icon+'</td>'
-      +'<td style="padding:8px 10px;font-size:11px;color:#374151">'+d.name+'</td>'
-      +'<td style="padding:8px 10px;text-align:center">'
-        +'<div style="background:#f1f5f9;border-radius:4px;height:12px;width:100px;display:inline-block;vertical-align:middle">'
-        +'<div style="background:'+barCol+';width:'+barW+'%;height:12px;border-radius:4px"></div></div>'
-        +' <span style="font-size:12px;font-weight:700;color:'+barCol+'">'+sl(ds)+'</span>'
-      +'</td>'
-      +'<td style="padding:8px 10px;text-align:center;font-size:11px;color:#6b7280">'+assessed_c+'/'+d.caps.length+'</td>'
-      +'<td style="padding:8px 10px;text-align:center;font-size:11px;color:'+(er2.pct!==null&&er2.pct>=75?'#22c55e':er2.pct!==null&&er2.pct>=50?'#f97316':'#ef4444')+'">'+(er2.pct!==null?er2.pct+'%':'—')+'</td>'
-      +'</tr>';
-  }).join('');
+  var company=(window.IK&&IK.company)?IK.company:'Trial Assessment';
+  var assessId=(window.IK&&IK.assessmentId)?IK.assessmentId:'N/A';
+  var industry=(window.IK&&IK.industry)?IK.industry:'N/A';
+  var sciLabel=es<2?'Below Target — Foundation Building Required':es<3?'Developing — Key Processes Being Established':es<4?'Operational — Evidence Building, Deployment Needed':es<4.5?'Well Managed — Strong Foundations in Place':'World Class — Sustain & Innovate';
 
-  // Gaps
-  var gaps=[];
+  // ── Collect gaps & strengths ──────────────────────────────────────────────
+  var gaps=[], strengths=[];
   DIMS.forEach(function(d,di){
     d.caps.forEach(function(c,ci){
       var cs=capSCI(di,ci);
-      if(cs>0&&cs<2.5) gaps.push({score:cs,name:c.name,dim:d.code,color:d.color});
+      if(cs>0&&cs<2.5) gaps.push({score:cs,name:c.name,dim:d.code,color:d.color,di:di,ci:ci});
+      if(cs>=3.5)  strengths.push({score:cs,name:c.name,dim:d.code,color:d.color});
     });
   });
   gaps.sort(function(a,b){return a.score-b.score;});
-  var topGaps=gaps.slice(0,8).map(function(g){
-    var barW=Math.round((g.score/5)*100);
-    return '<tr style="border-bottom:1px solid #f1f5f9">'
-      +'<td style="padding:6px 10px;font-size:11px;font-weight:700;color:'+g.color+'">'+g.dim+'</td>'
-      +'<td style="padding:6px 10px;font-size:11px;color:#374151">'+g.name+'</td>'
-      +'<td style="padding:6px 10px;text-align:center">'
-        +'<div style="background:#fee2e2;border-radius:4px;height:10px;width:80px;display:inline-block;vertical-align:middle">'
-        +'<div style="background:#ef4444;width:'+barW+'%;height:10px;border-radius:4px"></div></div>'
-        +' <span style="font-size:11px;font-weight:700;color:#ef4444">'+sl(g.score)+'</span>'
-      +'</td>'
-      +'</tr>';
-  }).join('') || '<tr><td colspan="3" style="padding:10px;color:#94a3b8;text-align:center">No significant gaps identified</td></tr>';
-
-  // Strengths
-  var strengths=[];
-  DIMS.forEach(function(d,di){
-    d.caps.forEach(function(c,ci){
-      var cs=capSCI(di,ci);
-      if(cs>=3.5) strengths.push({score:cs,name:c.name,dim:d.code,color:d.color});
-    });
-  });
   strengths.sort(function(a,b){return b.score-a.score;});
-  var topStr=strengths.slice(0,5).map(function(g){
-    return '<span style="display:inline-block;background:#f0fdf4;border:1px solid #86efac;border-radius:16px;padding:4px 12px;font-size:11px;color:#166534;margin:3px">&#10003; '+g.dim+' - '+g.name+' ('+sl(g.score)+')</span>';
-  }).join('') || '<span style="color:#94a3b8;font-size:11px">Complete more of the assessment to identify strengths</span>';
 
-  var sciColor=es<2?'#ef4444':es<3?'#f97316':es<4?'#eab308':'#22c55e';
+  // ── Quick wins: gaps with low effort & high impact ─────────────────────────
+  // Criteria: gaps scored 1.0–2.0 that have 90-day WN actions available
+  var quickWins=[];
+  gaps.forEach(function(g){
+    var band=Math.min(4,Math.floor(g.score));
+    var acts=(WN[band]||[]).filter(function(a){return a.h==='90d';});
+    if(acts.length>0 && g.score<=2.2) {
+      quickWins.push({
+        dim:g.dim, name:g.name, score:g.score, color:g.color,
+        action: acts[0].t
+      });
+    }
+  });
+  quickWins=quickWins.slice(0,6);
 
-  // ── Build plain-text email summary ─────────────────────────────────────────
-  var dimText = DIMS.map(function(d,di){
+  // ── Dimension rows ─────────────────────────────────────────────────────────
+  var dimRows=DIMS.map(function(d,di){
     var ds=dimSCI(di);
-    return d.code+' '+d.name+': '+sl(ds)+'/5.00';
-  }).join('\n');
+    var dc=ds<2?'#ef4444':ds<3?'#f97316':ds<4?'#eab308':'#22c55e';
+    var er2=dimEstRate(di);
+    var bw=Math.round((ds/5)*120);
+    var ac=0,co=0;
+    var drsk=dimRevenueRisk(di);
+    d.caps.forEach(function(_,ci){if(capSCI(di,ci)>0)ac++;if(capStat(di,ci)==='✅')co++;});
+    return '<tr style="border-bottom:1px solid #f1f5f9">'
+      +'<td style="padding:8px 10px;font-weight:700;color:'+d.color+';font-size:12px;white-space:nowrap">'+d.code+' '+d.icon+'</td>'
+      +'<td style="padding:8px 10px;font-size:11px;color:#374151">'+d.name+'</td>'
+      +'<td style="padding:8px 10px;white-space:nowrap">'
+        +'<div style="display:inline-flex;align-items:center;gap:8px">'
+        +'<div style="background:#f1f5f9;border-radius:4px;height:10px;width:120px;overflow:hidden">'
+        +'<div style="background:'+dc+';width:'+bw+'px;height:10px;border-radius:4px"></div></div>'
+        +'<span style="font-size:12px;font-weight:800;color:'+dc+'">'+sl(ds)+'</span>'
+        +'</div></td>'
+      +'<td style="padding:8px 10px;text-align:center;font-size:11px;color:#6b7280">'+ac+'/'+d.caps.length+'</td>'
+      +'<td style="padding:8px 10px;text-align:center;font-size:11px;font-weight:700;color:'+(er2.pct!==null&&er2.pct>=75?'#22c55e':er2.pct!==null&&er2.pct>=50?'#f97316':'#ef4444')+'">'+(er2.pct!==null?er2.pct+'%':'—')+'</td>'
+    +'<td style="padding:8px 10px;text-align:center;font-size:11px;font-weight:700;color:#f97316">'+fmtRisk(drsk)+'</td>'
+    +'</tr>';
+  }).join('');
 
-  var gapText = gaps.slice(0,8).map(function(g){
-    return '  • '+g.dim+' — '+g.name+': '+sl(g.score);
-  }).join('\n') || '  None identified yet';
+  // ── Gap rows ───────────────────────────────────────────────────────────────
+  var gapRows=gaps.slice(0,10).map(function(g){
+    var bw=Math.round((g.score/5)*100);
+    return '<tr style="border-bottom:1px solid #fef2f2">'
+      +'<td style="padding:7px 10px;font-weight:700;font-size:11px;color:'+g.color+'">'+g.dim+'</td>'
+      +'<td style="padding:7px 10px;font-size:11px;color:#374151">'+g.name+'</td>'
+      +'<td style="padding:7px 10px;white-space:nowrap">'
+        +'<div style="display:inline-flex;align-items:center;gap:6px">'
+        +'<div style="background:#fee2e2;border-radius:4px;height:8px;width:80px;overflow:hidden">'
+        +'<div style="background:#ef4444;width:'+bw+'%;height:8px;border-radius:4px"></div></div>'
+        +'<span style="font-size:11px;font-weight:800;color:#ef4444">'+sl(g.score)+'</span>'
+        +'</div></td>'
+    +'</tr>';
+  }).join('') || '<tr><td colspan="3" style="padding:10px;color:#94a3b8;text-align:center;font-size:11px">No significant gaps — good enterprise capability</td></tr>';
 
-  var strText = strengths.slice(0,5).map(function(g){
-    return '  • '+g.dim+' — '+g.name+': '+sl(g.score);
-  }).join('\n') || '  Complete more of the assessment';
+  // ── Strength badges ─────────────────────────────────────────────────────────
+  var strBadges=strengths.slice(0,6).map(function(g){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;margin-bottom:5px">'
+      +'<span style="color:#16a34a;font-weight:700;font-size:13px">✓</span>'
+      +'<span style="font-weight:700;font-size:11px;color:'+g.color+'">'+g.dim+'</span>'
+      +'<span style="font-size:11px;color:#374151">'+g.name+'</span>'
+      +'<span style="margin-left:auto;font-size:11px;font-weight:800;color:#16a34a">'+sl(g.score)+'</span>'
+    +'</div>';
+  }).join('') || '<p style="color:#94a3b8;font-size:11px">Complete more of the assessment to identify strengths</p>';
 
-  // Company info from IK if available
-  var company = (window.IK&&IK.company) ? IK.company : 'Trial Assessment';
-  var assessId = (window.IK&&IK.assessmentId) ? IK.assessmentId : 'N/A';
-  var industry = (window.IK&&IK.industry) ? IK.industry : 'N/A';
+  // ── Quick wins roadmap rows ─────────────────────────────────────────────────
+  var qwRows=quickWins.map(function(q,i){
+    return '<tr style="border-bottom:1px solid #fffbeb">'
+      +'<td style="padding:8px 10px;font-size:11px;font-weight:700;color:'+q.color+'">'+q.dim+'</td>'
+      +'<td style="padding:8px 10px;font-size:11px;color:#374151">'+q.name+'</td>'
+      +'<td style="padding:8px 10px;font-size:11px;color:#92400e">'+sl(q.score)+'</td>'
+      +'<td style="padding:8px 10px;font-size:11px;color:#374151">'+q.action+'</td>'
+    +'</tr>';
+  }).join('') || '<tr><td colspan="4" style="padding:12px;color:#94a3b8;text-align:center;font-size:11px">Score more capabilities to generate quick wins</td></tr>';
 
-  // ── HTML report for PDF window ──────────────────────────────────────────────
+  // ── SVG Radar chart ────────────────────────────────────────────────────────
+  var cx=250,cy=250,maxR=190,levels=5;
+  var n=DIMS.length;
+  var dimScores=DIMS.map(function(_,di){return dimSCI(di);});
+
+  // Grid rings
+  var rings='';
+  for(var lv=1;lv<=levels;lv++){
+    var r=(lv/levels)*maxR;
+    var pts=DIMS.map(function(_,i){
+      var ang=(i/n)*2*Math.PI-Math.PI/2;
+      return (cx+r*Math.cos(ang)).toFixed(1)+','+(cy+r*Math.sin(ang)).toFixed(1);
+    }).join(' ');
+    rings+='<polygon points="'+pts+'" fill="none" stroke="#e2e8f0" stroke-width="1"/>';
+    rings+='<text x="'+(cx+4)+'" y="'+(cy-r+4)+'" font-size="8" fill="#94a3b8">'+lv+'</text>';
+  }
+
+  // Axis lines & labels
+  var axes='', labels='';
+  DIMS.forEach(function(d,i){
+    var ang=(i/n)*2*Math.PI-Math.PI/2;
+    var xe=(cx+maxR*Math.cos(ang)).toFixed(1), ye=(cy+maxR*Math.sin(ang)).toFixed(1);
+    axes+='<line x1="'+cx+'" y1="'+cy+'" x2="'+xe+'" y2="'+ye+'" stroke="#e2e8f0" stroke-width="1"/>';
+    // Label position — push slightly beyond edge
+    var lr=maxR+26;
+    var lx=(cx+lr*Math.cos(ang)).toFixed(1), ly=(cy+lr*Math.sin(ang)).toFixed(1);
+    var anchor=Math.cos(ang)>0.1?'start':Math.cos(ang)<-0.1?'end':'middle';
+    var sc=dimScores[i], lcol=sc<2?'#ef4444':sc<3?'#f97316':sc<4?'#eab308':'#22c55e';
+    labels+='<text x="'+lx+'" y="'+parseFloat(ly)+'" font-size="9" font-weight="700" fill="'+d.color+'" text-anchor="'+anchor+'">'+d.code+'</text>';
+    labels+='<text x="'+lx+'" y="'+(parseFloat(ly)+11)+'" font-size="10" font-weight="800" fill="'+lcol+'" text-anchor="'+anchor+'">'+sl(sc)+'</text>';
+  });
+
+  // Baseline polygon (dashed at 4.0)
+  var basePts=DIMS.map(function(_,i){
+    var ang=(i/n)*2*Math.PI-Math.PI/2;
+    var r=(4/5)*maxR;
+    return (cx+r*Math.cos(ang)).toFixed(1)+','+(cy+r*Math.sin(ang)).toFixed(1);
+  }).join(' ');
+
+  // Score polygon
+  var scorePts=dimScores.map(function(sc,i){
+    var ang=(i/n)*2*Math.PI-Math.PI/2;
+    var r=Math.max(0,(sc/5))*maxR;
+    return (cx+r*Math.cos(ang)).toFixed(1)+','+(cy+r*Math.sin(ang)).toFixed(1);
+  }).join(' ');
+
+  // Score dots
+  var dots=dimScores.map(function(sc,i){
+    var ang=(i/n)*2*Math.PI-Math.PI/2;
+    var r=Math.max(0,(sc/5))*maxR;
+    var col=sc<2?'#ef4444':sc<3?'#f97316':sc<4?'#eab308':'#22c55e';
+    return '<circle cx="'+(cx+r*Math.cos(ang)).toFixed(1)+'" cy="'+(cy+r*Math.sin(ang)).toFixed(1)+'" r="5" fill="'+col+'" stroke="#fff" stroke-width="1.5"/>';
+  }).join('');
+
+  var radarSVG='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">'
+    +'<rect width="500" height="500" fill="#0f172a" rx="12"/>'
+    +rings+axes
+    +'<polygon points="'+basePts+'" fill="none" stroke="#f5a623" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.5"/>'
+    +'<polygon points="'+scorePts+'" fill="rgba(37,99,235,0.25)" stroke="#3b82f6" stroke-width="2"/>'
+    +dots+labels
+    +'<text x="250" y="488" font-size="9" fill="#475569" text-anchor="middle">— Enterprise Score  ·  - - - Target (4.0)</text>'
+    +'</svg>';
+
+  // ── Build complete HTML report ─────────────────────────────────────────────
   var html2='<!DOCTYPE html><html><head><meta charset="UTF-8">'
     +'<title>ScaleOS Executive Report - '+now+'</title>'
     +'<style>'
-    +'body{font-family:Arial,sans-serif;margin:0;padding:0;color:#1e293b;background:#fff}'
-    +'@media print{body{margin:0} .no-print{display:none} .page-break{page-break-before:always}}'
-    +'@page{margin:18mm 15mm;size:A4}'
-    +'.cover{background:linear-gradient(135deg,#0a1628 0%,#0f2040 100%);color:#fff;padding:48px 40px;min-height:220px}'
-    +'.cover-brand{font-size:13px;color:#f5a623;font-weight:700;letter-spacing:2px;margin-bottom:8px}'
-    +'.cover-title{font-size:32px;font-weight:900;margin:0 0 6px}'
-    +'.cover-sub{font-size:14px;color:#94a3b8;margin-bottom:24px}'
-    +'.cover-meta{font-size:12px;color:#64748b}'
-    +'.kpi-row{display:flex;gap:0;background:#f8fafc;border-bottom:2px solid #e2e8f0}'
-    +'.kpi{flex:1;padding:16px;text-align:center;border-right:1px solid #e2e8f0}'
+    +'*{box-sizing:border-box;margin:0;padding:0}'
+    +'body{font-family:Arial,sans-serif;color:#1e293b;background:#fff;font-size:13px}'
+    +'@media print{.no-print{display:none}.pb{page-break-before:always}body{margin:0}}'
+    +'@page{margin:12mm 12mm;size:A4}'
+    +'.cover{background:linear-gradient(135deg,#0a1628,#0f2040);color:#fff;padding:30px 36px}'
+    +'.cover-brand{font-size:11px;color:#f5a623;font-weight:700;letter-spacing:2px;margin-bottom:6px}'
+    +'.cover-h{font-size:26px;font-weight:900;margin-bottom:4px}'
+    +'.cover-s{font-size:13px;color:#94a3b8}'
+    +'.kbar{display:flex;background:#f8fafc;border-bottom:2px solid #e2e8f0}'
+    +'.kpi{flex:1;padding:13px 8px;text-align:center;border-right:1px solid #e2e8f0}'
     +'.kpi:last-child{border-right:none}'
-    +'.kpi-val{font-size:26px;font-weight:900;margin-bottom:2px}'
-    +'.kpi-lbl{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px}'
-    +'.section{padding:20px 28px}'
-    +'.section-title{font-size:14px;font-weight:800;color:#0a1628;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #f5a623}'
+    +'.kv{font-size:22px;font-weight:900;margin-bottom:2px}'
+    +'.kl{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px}'
+    +'.sec{padding:16px 28px}'
+    +'.st{font-size:13px;font-weight:800;color:#0a1628;margin-bottom:10px;padding-bottom:5px;border-bottom:2px solid #f5a623;display:flex;align-items:center;gap:6px}'
     +'table{width:100%;border-collapse:collapse}'
-    +'th{background:#0a1628;color:#fff;padding:8px 10px;font-size:10px;font-weight:700;text-align:left;letter-spacing:0.5px}'
-    +'.sci-circle{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;border:4px solid '+sciColor+';margin:0 auto}'
-    +'.footer-bar{background:#0a1628;color:#64748b;font-size:9px;padding:8px 28px;text-align:center;margin-top:20px}'
+    +'th{background:#0a1628;color:#fff;padding:7px 10px;font-size:9.5px;font-weight:700;text-align:left;letter-spacing:0.4px}'
+    +'.sci-box{background:#f8fafc;border-left:4px solid '+sciColor+';padding:12px 16px;border-radius:4px;margin:0 28px 16px}'
+    +'.qw-label{display:inline-block;background:#fef9c3;border:1px solid #fde047;border-radius:10px;padding:2px 8px;font-size:9px;font-weight:700;color:#854d0e}'
+    +'.footer{background:#0a1628;color:#475569;font-size:9px;padding:8px 28px;text-align:center;margin-top:16px}'
     +'</style></head><body>'
+
+    // ── COVER ────────────────────────────────────────────────────────────────
     +'<div class="cover">'
-    +'<div class="cover-brand">MIRAI AXIS CONSULTING LLP  &middot;  SCALEOS&trade;</div>'
-    +'<div class="cover-title">Enterprise Capability Assessment</div>'
-    +'<div class="cover-sub">Executive Report  &mdash;  Confidential</div>'
-    +'<div class="cover-meta">Generated: '+now+'  &middot;  Company: '+company+'  &middot;  Assessment ID: '+assessId+'  &middot;  Industry: '+industry+'</div>'
+    +'<div class="cover-brand">MIRAI AXIS CONSULTING LLP  ·  SCALEOS™</div>'
+    +'<div class="cover-h">Enterprise Capability Assessment — Executive Report</div>'
+    +'<div class="cover-s">'+now+'  ·  Company: '+company+'  ·  ID: '+assessId+'  ·  Industry: '+industry+'  ·  Confidential</div>'
     +'</div>'
-    +'<div class="kpi-row">'
-    +'<div class="kpi"><div class="kpi-val" style="color:'+sciColor+'">'+sl(es)+'</div><div class="kpi-lbl">Enterprise SCI</div></div>'
-    +'<div class="kpi"><div class="kpi-val" style="color:#60a5fa">'+assessed+'</div><div class="kpi-lbl">Caps Assessed</div></div>'
-    +'<div class="kpi"><div class="kpi-val" style="color:#22c55e">'+complete+'</div><div class="kpi-lbl">Fully Scored</div></div>'
-    +'<div class="kpi"><div class="kpi-val" style="color:#f5a623">'+(er.pct!==null?er.pct+'%':'&mdash;')+'</div><div class="kpi-lbl">Established %</div></div>'
-    +'<div class="kpi"><div class="kpi-val" style="color:#a78bfa">'+gaps.length+'</div><div class="kpi-lbl">Gaps Found</div></div>'
+
+    // ── KPI STRIP ─────────────────────────────────────────────────────────────
+    +'<div class="kbar">'
+    +'<div class="kpi"><div class="kv" style="color:'+sciColor+'">'+sl(es)+'</div><div class="kl">Enterprise SCI</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#60a5fa">'+assessed+'</div><div class="kl">Caps Assessed</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#22c55e">'+complete+'</div><div class="kl">Fully Scored</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#f5a623">'+(er.pct!==null?er.pct+'%':'—')+'</div><div class="kl">Established</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#a78bfa">'+gaps.length+'</div><div class="kl">Gaps Found</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#fb923c;font-size:16px">'+fmtRisk(entRevenueRisk())+'</div><div class="kl">Revenue at Risk</div></div>'
     +'</div>'
-    +'<div class="section"><div class="section-title">&#128202; Dimension Scorecard</div>'
-    +'<table><thead><tr><th>Code</th><th>Dimension</th><th>SCI Score</th><th>Assessed</th><th>Established</th></tr></thead>'
-    +'<tbody>'+dimRows+'</tbody></table></div>'
-    +'<div class="page-break"></div>'
-    +'<div class="section"><div class="section-title">&#128308; Top Capability Gaps (Score below 2.5)</div>'
+
+    // ── SCI INTERPRETATION ────────────────────────────────────────────────────
+    +'<div class="sci-box" style="margin-top:14px">'
+    +'<span style="font-size:13px;font-weight:800;color:'+sciColor+'">Enterprise SCI: '+sl(es)+' / 5.00</span>'
+    +'<span style="font-size:11px;color:#64748b;margin-left:10px">'+sciLabel+'</span>'
+    +'</div>'
+    +(function(){
+      var rsk=entRevenueRisk();
+      if(rsk<=0) return '';
+      return '<div style="margin:0 28px 16px;background:#fff8f0;border:1px solid #fed7aa;border-left:4px solid #f97316;border-radius:6px;padding:12px 16px">'
+        +'<div style="font-size:13px;font-weight:800;color:#9a3412;margin-bottom:4px">⚠️ Estimated Revenue at Risk: '+fmtRisk(rsk)+'</div>'
+        +'<div style="font-size:11px;color:#92400e;font-style:italic;line-height:1.6">This is a benchmark-based directional estimate, not a measured loss. It is calculated from the gap between your current capability scores and target baselines, weighted by dimension impact. It is intended to show the relative scale of opportunity — not a precise number.</div>'
+        +'</div>';
+    }())
+
+    // ══ SECTION 1: RADAR CHART ═══════════════════════════════════════════════
+    +'<div class="sec">'
+    +'<div class="st">📡 Enterprise Capability Radar</div>'
+    +'<div style="display:flex;align-items:flex-start;gap:24px">'
+    +'<div>'+radarSVG+'</div>'
+    +'<div style="flex:1;padding-top:8px">'
+    +'<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:10px">Reading the Radar</div>'
+    +'<div style="font-size:11px;color:#64748b;line-height:1.6;margin-bottom:12px">'
+    +'The solid blue polygon shows your current enterprise capability score across all 11 dimensions. '
+    +'The dashed gold line represents the target benchmark of 4.0. '
+    +'Gaps between the two lines are priority areas for improvement.'
+    +'</div>'
+    // Dimension legend
+    +DIMS.map(function(d,di){
+      var ds=dimSCI(di);
+      var dc=ds<2?'#ef4444':ds<3?'#f97316':ds<4?'#eab308':'#22c55e';
+      var bw=Math.round((ds/5)*80);
+      return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'
+        +'<span style="font-size:10px;font-weight:700;color:'+d.color+';min-width:28px">'+d.code+'</span>'
+        +'<div style="background:#f1f5f9;border-radius:3px;height:7px;width:80px;overflow:hidden">'
+        +'<div style="background:'+dc+';width:'+bw+'px;height:7px;border-radius:3px"></div></div>'
+        +'<span style="font-size:10px;font-weight:800;color:'+dc+';min-width:28px">'+sl(ds)+'</span>'
+        +'<span style="font-size:10px;color:#64748b">'+d.name+'</span>'
+        +'</div>';
+    }).join('')
+    +'</div></div>'
+    +'</div>'
+
+    // ══ SECTION 2: DIMENSION SCORECARD ═══════════════════════════════════════
+    +'<div class="pb"></div>'
+    +'<div class="sec">'
+    +'<div class="st">📊 Dimension Scorecard</div>'
+    +'<table><thead><tr>'
+    +'<th>Code</th><th>Dimension</th><th>SCI Score</th><th>Assessed</th><th>Established</th><th style="color:#fb923c">Revenue Risk</th>'
+    +'</tr></thead><tbody>'+dimRows+'</tbody></table>'
+    +'</div>'
+
+    // ══ SECTION 3: TOP CAPABILITY GAPS ════════════════════════════════════════
+    +'<div class="sec">'
+    +'<div class="st">🔴 Top Capability Gaps (Score below 2.5)</div>'
     +'<table><thead><tr><th>Dimension</th><th>Capability</th><th>Score</th></tr></thead>'
-    +'<tbody>'+topGaps+'</tbody></table></div>'
-    +'<div class="section"><div class="section-title">&#128170; Confirmed Strengths (Score 3.5+)</div>'
-    +'<div style="padding:8px 0">'+topStr+'</div></div>'
-    +'<div class="section" style="background:#f8fafc;border-radius:8px;margin:0 28px;padding:16px">'
-    +'<div style="display:flex;align-items:center;gap:24px">'
-    +'<div class="sci-circle"><span style="font-size:22px;font-weight:900;color:'+sciColor+'">'+sl(es)+'</span><span style="font-size:9px;color:#94a3b8">SCI</span></div>'
-    +'<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#0a1628;margin-bottom:6px">Enterprise SCI Interpretation</div>'
-    +(es<1.5?'<p style="font-size:12px;color:#374151;margin:0">Score below 1.5: Most capabilities are not yet established. Significant foundation building required.</p>'
-    :es<2.5?'<p style="font-size:12px;color:#374151;margin:0">Score 1.5-2.5: Partially established. Key processes exist informally. Structured capability building is the immediate priority.</p>'
-    :es<3.5?'<p style="font-size:12px;color:#374151;margin:0">Score 2.5-3.5: Operational capabilities in place. Evidence is building. Focus on deployment and consistent measurement.</p>'
-    :es<4.5?'<p style="font-size:12px;color:#374151;margin:0">Score 3.5-4.5: Well-managed enterprise. Strong foundations. Focus on world-class practices and continuous improvement.</p>'
-    :'<p style="font-size:12px;color:#374151;margin:0">Score 4.5+: World-class enterprise capability. Sustain excellence and focus on innovation-led growth.</p>')
-    +'</div></div></div>'
-    +'<div class="footer-bar" style="margin-top:24px">ScaleOS&trade; Enterprise Capability Assessment  &middot;  Mirai Axis Consulting LLP  &middot;  Confidential  &middot;  '+now+'</div>'
+    +'<tbody>'+gapRows+'</tbody></table>'
+    +'</div>'
+
+    // ══ SECTION 4: STRENGTHS ══════════════════════════════════════════════════
+    +'<div class="sec">'
+    +'<div class="st">💪 Confirmed Strengths (Score 3.5+)</div>'
+    +'<div>'+strBadges+'</div>'
+    +'</div>'
+
+    // ══ SECTION 5: QUICK WINS ROADMAP ════════════════════════════════════════
+    +'<div class="pb"></div>'
+    +'<div class="sec">'
+    +'<div class="st">⚡ Immediate Roadmap — Low Effort, Maximum Impact <span class="qw-label">90 DAYS</span></div>'
+    +'<div style="font-size:11px;color:#64748b;margin-bottom:10px;line-height:1.5">'
+    +'The capabilities below combine the lowest current scores with the highest improvement leverage. '
+    +'Addressing these first delivers the fastest visible impact to the business — without large investment or long timelines.'
+    +'</div>'
+    +'<table>'
+    +'<thead><tr>'
+    +'<th>Dimension</th><th>Capability</th><th>Current Score</th><th>Recommended First Action (90 Days)</th>'
+    +'</tr></thead>'
+    +'<tbody>'+qwRows+'</tbody>'
+    +'</table>'
+    +'</div>'
+
+    // ══ SECTION 6: NEXT STEPS ════════════════════════════════════════════════
+    +'<div class="sec" style="background:#f8fafc;margin:0 28px 16px;border-radius:8px;padding:14px 18px">'
+    +'<div style="font-size:13px;font-weight:800;color:#0a1628;margin-bottom:8px">🎯 Recommended Next Steps — Mirai Axis</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">'
+    +'<div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px;border-top:3px solid #f5a623">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;margin-bottom:4px">IMMEDIATE (0–30 DAYS)</div>'
+    +'<div style="font-size:11px;color:#374151;line-height:1.5">Review top gaps with leadership team. Assign dimension owners. Confirm baseline targets per capability.</div>'
+    +'</div>'
+    +'<div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px;border-top:3px solid #2563eb">'
+    +'<div style="font-size:10px;font-weight:700;color:#2563eb;margin-bottom:4px">SHORT TERM (30–90 DAYS)</div>'
+    +'<div style="font-size:11px;color:#374151;line-height:1.5">Execute quick wins roadmap above. Validate Outside-In with Mirai Axis expert workshop. Confirm final scores.</div>'
+    +'</div>'
+    +'<div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px;border-top:3px solid #22c55e">'
+    +'<div style="font-size:10px;font-weight:700;color:#22c55e;margin-bottom:4px">MEDIUM TERM (3–12 MONTHS)</div>'
+    +'<div style="font-size:11px;color:#374151;line-height:1.5">Build structured capability improvement programme. Set quarterly review cadence. Track SCI improvement.</div>'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+
+    +'<div class="footer">ScaleOS™ Enterprise Capability Assessment  ·  Mirai Axis Consulting LLP  ·  Confidential — Not for distribution  ·  '+now+'</div>'
     +'</body></html>';
 
   // ── Open PDF window ─────────────────────────────────────────────────────────
-  var win = window.open('','_blank','width=900,height=700');
+  var win=window.open('','_blank','width=950,height=750');
   win.document.write(html2);
   win.document.close();
   win.focus();
-  setTimeout(function(){ win.print(); }, 800);
+  setTimeout(function(){ win.print(); },900);
 
-  // ── Send email via Google Apps Script Web App ───────────────────────────────
-  var GAS_URL = 'https://script.google.com/macros/s/AKfycbytchritgiBkQ3HFFV47kA46f6kqHvFfsbkGFuJpDTCiGV_96a6-krqPR_8ZoB7iVUsmg/exec'; // Replace with your /exec URL
+  // ── Send email via Google Apps Script ───────────────────────────────────────
+  var GAS_URL='https://script.google.com/macros/s/AKfycbytchritgiBkQ3HFFV47kA46f6kqHvFfsbkGFuJpDTCiGV_96a6-krqPR_8ZoB7iVUsmg/exec';
 
-  if(!GAS_URL || GAS_URL.indexOf('PASTE') !== -1) {
-    toast('PDF opened. Paste your Apps Script /exec URL in the file to enable auto-email.','warn');
-    return;
-  }
-
-  var sciLabel = es<2?'Below Target':es<3?'Developing':es<4?'Operational':es<4.5?'Well Managed':'World Class';
-
-  var payload = {
-    date:           now,
-    company:        company,
-    assessId:       assessId,
-    industry:       industry,
-    enterpriseSCI:  sl(es),
-    sciLabel:       sciLabel,
-    assessed:       assessed+' of 99',
-    complete:       complete+' of 99',
-    establishedPct: (er.pct!==null?er.pct+'%':'—'),
-    gapsCount:      gaps.length,
-    dimensionScores: DIMS.map(function(d,di){ return d.code+' '+d.name+': '+sl(dimSCI(di)); }).join('\n'),
-    topGaps:        gaps.slice(0,8).map(function(g){ return '• '+g.dim+' — '+g.name+': '+sl(g.score); }).join('\n'),
-    topStrengths:   strengths.slice(0,5).map(function(g){ return '• '+g.dim+' — '+g.name+': '+sl(g.score); }).join('\n'),
+  var sciL=es<2?'Below Target':es<3?'Developing':es<4?'Operational':es<4.5?'Well Managed':'World Class';
+  var payload={
+    date:now, company:company, assessId:assessId, industry:industry,
+    enterpriseSCI:sl(es), sciLabel:sciL,
+    assessed:assessed+' of 99', complete:complete+' of 99',
+    establishedPct:(er.pct!==null?er.pct+'%':'—'),
+    gapsCount:gaps.length,
+    dimensionScores:DIMS.map(function(d,di){return d.code+' '+d.name+': '+sl(dimSCI(di));}).join('\n'),
+    topGaps:gaps.slice(0,8).map(function(g){return '• '+g.dim+' — '+g.name+': '+sl(g.score);}).join('\n'),
+    topStrengths:strengths.slice(0,5).map(function(g){return '• '+g.dim+' — '+g.name+': '+sl(g.score);}).join('\n'),
   };
 
-  fetch(GAS_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
-  })
-  .then(function(){ toast('✅ Report emailed to sraj1971@gmail.com & yahoo.com','ok'); })
-  .catch(function(err){ toast('PDF saved. Email error: '+err,'warn'); console.error(err); });
+  fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(){ toast('✅ Report saved as PDF & emailed to sraj1971@gmail.com','ok'); })
+    .catch(function(err){ toast('PDF saved. Email error: '+err,'warn'); });
 }
-
 
 function toast(msg,cls,ms){
   var t=document.getElementById('T');
@@ -1391,6 +1546,7 @@ function rDash(){
       +'<span style="font-size:13px">'+d.icon+'</span>'
       +'<span class="epn">'+d.code+'</span>'
       +'<span class="eps" style="color:'+col+'">'+sl(s)+'</span>'
+      +(function(){ var dr=dimRevenueRisk(di); return dr>0?'<span style="font-size:10px;font-weight:700;color:#fb923c;background:#3a100022;border-radius:8px;padding:1px 7px;margin-left:4px">⚠️ '+fmtRisk(dr)+'</span>':''; }())
       +(function(){ var r=dimEstRate(di); return r.pct!==null?'<span class="ep-est">'+r.pct+'%</span>':''; }())
       +'</div>';
   }).join('');
@@ -1482,7 +1638,37 @@ function rAC(){
       if(qd.m===1) lkn='<div class="lkn">🔒 M=1: Evidence & Deployment locked at 1</div>';
       else{ if(em<5) lkn+='<div class="lkn">🔒 M='+qd.m+': Evidence capped at '+em+'</div>'; if(qd.e&&dm<5) lkn+='<div class="lkn">🔒 E='+qd.e+': Deployment capped at '+dm+'</div>'; }
       var sfl=qs2?'= '+qd.m+'×0.5+'+(qd.e||0)+'×0.25+'+(qd.d||0)+'×0.25':'';
-      medBlock='<div class="med-block">'
+      medBlock='<div class="sdp">'
+        +'<div class="sdp-title">📖 Scoring Guide — How to rate each dimension</div>'
+        +'<div class="sdp-grid">'
+        +'<div class="sdp-col">'
+        +'<div class="sdp-hdr" style="color:#f5a623">⚡ MATURITY <span class="sdp-w">50%</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#ef4444">1</span><span class="sdp-t">Not established — no process exists</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#f97316">2</span><span class="sdp-t">Partially established — informal or inconsistent</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#eab308">3</span><span class="sdp-t">Operational — defined and generally followed</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#3b82f6">4</span><span class="sdp-t">Well managed — measured and consistently applied</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#22c55e">5</span><span class="sdp-t">World class — benchmark standard, continuously improved</span></div>'
+        +'</div>'
+        +'<div class="sdp-col">'
+        +'<div class="sdp-hdr" style="color:#60a5fa">📄 EVIDENCE <span class="sdp-w">25%</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#ef4444">1</span><span class="sdp-t">No evidence — nothing to show</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#f97316">2</span><span class="sdp-t">Document available — policy or SOP exists on paper</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#eab308">3</span><span class="sdp-t">Implementation verified — evidence it is being used</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#3b82f6">4</span><span class="sdp-t">Performance verified — results and outcomes evidenced</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#22c55e">5</span><span class="sdp-t">Real-time system verified — live data confirms performance</span></div>'
+        +'</div>'
+        +'<div class="sdp-col">'
+        +'<div class="sdp-hdr" style="color:#a78bfa">🏢 DEPLOYMENT <span class="sdp-w">25%</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#ef4444">1</span><span class="sdp-t">Not deployed — exists nowhere in the organisation</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#f97316">2</span><span class="sdp-t">Pilot deployment — one team or location only</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#eab308">3</span><span class="sdp-t">Department deployed — multiple teams using it</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#3b82f6">4</span><span class="sdp-t">Widely deployed — most of the organisation</span></div>'
+        +'<div class="sdp-row"><span class="sdp-n" style="color:#22c55e">5</span><span class="sdp-t">Enterprise wide — entire organisation without exception</span></div>'
+        +'</div>'
+        +'</div>'
+        +'<div class="sdp-formula">SCI Formula: <strong>(M × 0.50) + (E × 0.25) + (D × 0.25)</strong> — Score each dimension independently then rate below</div>'
+        +'</div>'
+        +'<div class="med-block">'
         +'<div class="dr"><div class="dlc"><div class="dll c3">Maturity</div><div class="dls">Weight: 50%</div></div>'
         +'<div class="dbs">'+mkBtns('m',5,ML,qd.m,qi)+'</div></div>'
         +'<div class="dr"><div class="dlc"><div class="dll" style="color:#60a5fa">Evidence</div><div class="dls">Weight: 25%</div></div>'
@@ -1553,6 +1739,7 @@ function rAC(){
     +'<span class="chip'+(cs?' on':'')+'">SCI: <strong style="color:'+ccol+'">'+sl(cs)+'</strong></span>'
     +'<span class="chip">'+done+'/'+c.q.length+' scored</span>'
     +(nope>0?'<span class="chip" style="background:#3b0606;color:#f87171">🚫 '+nope+' not established</span>':'')
+    +(function(){ var rsk=capRevenueRisk(di,ci); return rsk>0?'<span class="chip" style="background:#3a1000;color:#fb923c">⚠️ Risk: '+fmtRisk(rsk)+'</span>':''; }())
     +(estPct!==null?'<span class="chip" style="background:#0c2040;color:#60a5fa">✅ Established: '+estPct+'%</span>':'')
     +'</div></div>'
     +'<div class="qw">'+qs+'</div>'
@@ -1636,6 +1823,7 @@ function rRoad(){
 function rRepHub(){
   if(RT==='exec') return rExec();
   if(RT==='detail') return rDetail();
+  if(RT==='ceo') return rCEO();
   return '<div class="rhw">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'
     +'<div><div class="rht">Reports</div><div class="rhs">Select a report type below, then save as PDF</div></div>'
@@ -1644,19 +1832,33 @@ function rRepHub(){
     +'<div class="rhg">'
     +'<div class="rhc" data-rt="exec"><div class="rhci">📊</div><div class="rhcn">Executive Report</div><div class="rhcd">High-level summary for leadership — Enterprise SCI, dimension scores, and top priorities</div></div>'
     +'<div class="rhc" data-rt="detail"><div class="rhci">📋</div><div class="rhcn">Detailed Assessment</div><div class="rhcd">Full capability breakdown with M, E, D scores across all 11 dimensions</div></div>'
-    +'<div class="rhc" data-gv="comb"><div class="rhci">🔍</div><div class="rhcn">Combined Analysis</div><div class="rhcd">Radar chart, gap analysis, and benchmark comparison across all dimensions</div></div>'
+    +'<div class="rhc" data-rt="ceo"><div class="rhci">🎯</div><div class="rhcn">CEO Report</div><div class="rhcd">Executive summary with radar chart, top gaps, quick-win roadmap, and strategic next steps — ready to share with leadership</div></div>'
     +'</div></div>';
 }
 
 // ==============================================================
 // EXEC REPORT
 // ==============================================================
+function rCEO(){
+  return '<div style="text-align:center;padding:40px 20px">'
+    +'<div style="font-size:40px;margin-bottom:16px">🎯</div>'
+    +'<div style="font-size:20px;font-weight:800;color:#f1f5f9;margin-bottom:8px">CEO Executive Report</div>'
+    +'<div style="font-size:13px;color:#7890a8;margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6">'
+    +'A complete, board-ready executive report with radar chart, dimension scorecard, top capability gaps, quick-win roadmap, and strategic next steps.'
+    +'</div>'
+    +'<button onclick="exportPDF()" style="padding:14px 36px;background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,0.4)">'
+    +'📄 Generate &amp; Save CEO Report as PDF'
+    +'</button>'
+    +'<div style="margin-top:14px;font-size:11px;color:#475569">Opens a print-ready PDF and emails a copy to sraj1971@gmail.com</div>'
+    +'</div>';
+}
+
 function rExec(){
   var es=entSCI(), ecol=scol(es);
   var now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
   var assessed=0,complete=0;
   DIMS.forEach(function(_,di){ DIMS[di].caps.forEach(function(_,ci){ if(capSCI(di,ci)>0)assessed++; if(capStat(di,ci)==='✅')complete++; }); });
-  var er=entEstRate(); var kpis=[{v:sl(es),l:'Enterprise SCI',col:ecol},{v:assessed+'/99',l:'Caps Assessed',col:'#60a5fa'},{v:complete+'/99',l:'Fully Scored',col:'#22c55e'},{v:(er.pct!==null?er.pct+'%':'—'),l:'Established %',col:'#f5a623'},{v:'11',l:'Dimensions',col:'#a78bfa'}];
+  var er=entEstRate(); var er2=entRevenueRisk(); var kpis=[{v:sl(es),l:'Enterprise SCI',col:ecol},{v:assessed+'/99',l:'Caps Assessed',col:'#60a5fa'},{v:complete+'/99',l:'Fully Scored',col:'#22c55e'},{v:(er.pct!==null?er.pct+'%':'—'),l:'Established %',col:'#f5a623'},{v:er2>0?fmtRisk(er2):'—',l:'Revenue at Risk',col:'#fb923c'},{v:'11',l:'Dimensions',col:'#a78bfa'}];
   var all=[];
   DIMS.forEach(function(d,di){ d.caps.forEach(function(c,ci){ var s=capSCI(di,ci); if(s>0)all.push({di:di,ci:ci,d:d,c:c,s:s}); }); });
   all.sort(function(a,b){return a.s-b.s;});
@@ -1725,6 +1927,45 @@ function rDetail(){
 // ==============================================================
 // DIM REPORT
 // ==============================================================
+
+// ==============================================================
+// REVENUE AT RISK ENGINE
+// ==============================================================
+function getRevenueMidpoint() {
+  var rev = (window.IK && IK.revenue) ? IK.revenue : '';
+  if(rev.indexOf('Below')>=0) return 5;
+  if(rev.indexOf('10')>=0 && rev.indexOf('50')>=0) return 30;
+  if(rev.indexOf('50')>=0 && rev.indexOf('100')>=0) return 75;
+  if(rev.indexOf('100')>=0 && rev.indexOf('250')>=0) return 175;
+  if(rev.indexOf('250')>=0 && rev.indexOf('500')>=0) return 375;
+  if(rev.indexOf('500')>=0 && rev.indexOf('1,000')>=0) return 750;
+  if(rev.indexOf('1,000')>=0 && rev.indexOf('5,000')>=0) return 3000;
+  if(rev.indexOf('5,000')>=0) return 6000;
+  return 200; // default
+}
+function dimRiskWeight(di) {
+  return [0.20,0.15,0.18,0.12,0.22,0.16,0.14,0.10,0.13,0.12,0.10][di] || 0.12;
+}
+function capRevenueRisk(di, ci) {
+  var cs = capSCI(di, ci);
+  if(cs <= 0) return 0;
+  var gap = Math.max(0, getBL(di, ci) - cs);
+  if(gap <= 0) return 0;
+  return getRevenueMidpoint() * dimRiskWeight(di) * (gap/5) / DIMS[di].caps.length;
+}
+function dimRevenueRisk(di) {
+  var t=0; DIMS[di].caps.forEach(function(_,ci){ t+=capRevenueRisk(di,ci); }); return t;
+}
+function entRevenueRisk() {
+  var t=0; DIMS.forEach(function(_,di){ t+=dimRevenueRisk(di); }); return t;
+}
+function fmtRisk(cr) {
+  if(cr<=0) return '\u20b90';
+  if(cr<1) return '\u20b9'+(cr*100).toFixed(0)+' Lakh';
+  return '\u20b9'+cr.toFixed(2)+' Crore';
+}
+// ==============================================================
+
 function rDimRep(di){
   var d=DIMS[di];
   var rows=d.caps.map(function(c,ci){
@@ -1924,6 +2165,12 @@ function togglePWEye(){
 
 // Auto-focus password input on load
 window.addEventListener('load', function(){
+  // Auto-show intake form (password screen is bypassed for trials)
+  var ik = document.getElementById('intake-overlay');
+  if(ik) {
+    ik.style.display = 'block';
+    setTimeout(function(){ ik.classList.add('show'); ikCheck(); }, 50);
+  }
   var inp=document.getElementById('pw-inp');
   if(inp) setTimeout(function(){ inp.focus(); }, 100);
 });
@@ -1935,7 +2182,7 @@ window.addEventListener('load', function(){
 var IK = {};  // stores submitted intake data
 
 function ikCheck(){
-  // Count required main fields
+  // Count only the 5 core required fields (contacts removed for trial)
   var reqFields = document.querySelectorAll('.ik-req');
   var totalReq = reqFields.length;
   var filledReq = 0;
@@ -1945,18 +2192,8 @@ function ikCheck(){
     else{ f.classList.remove('filled'); }
   });
 
-  // Count dimension contact fields (name + phone + email per dim = 33 fields)
-  var dimInputs = document.querySelectorAll('.ik-dim-contact');
-  var totalDim = dimInputs.length;
-  var filledDim = 0;
-  dimInputs.forEach(function(f){
-    var v = f.value ? f.value.trim() : '';
-    if(v){ filledDim++; f.classList.add('filled'); }
-    else{ f.classList.remove('filled'); }
-  });
-
-  var total = totalReq + totalDim;
-  var filled = filledReq + filledDim;
+  var total = totalReq;
+  var filled = filledReq;
   var pct = total > 0 ? Math.round((filled/total)*100) : 0;
 
   // Update progress bar
@@ -2032,6 +2269,8 @@ window.addEventListener('load', function(){
 initBL();
 initST();
 rSB();
+gv('dash');
+);
 gv('dash');
 </script>
 </body>
