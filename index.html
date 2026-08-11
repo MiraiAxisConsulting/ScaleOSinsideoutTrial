@@ -1,4 +1,16 @@
-<!DOCTYPE html>
+<!DOCTY
+// ==============================================================
+// SCORING GUIDE MODAL
+// ==============================================================
+function openSG(){
+  var m=document.getElementById('sg-modal');
+  if(m) m.style.display='block';
+}
+function closeSG(){
+  var m=document.getElementById('sg-modal');
+  if(m) m.style.display='none';
+}
+PE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -741,24 +753,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
   <div class="sci-row"><div class="sci-dot" style="background:#60a5fa"></div><span class="sci-lbl">E · Evidence</span><span class="sci-wt">25%</span></div>
   <div class="sci-row"><div class="sci-dot" style="background:#a78bfa"></div><span class="sci-lbl">D · Deployment</span><span class="sci-wt">25%</span></div>
   <div class="sci-form">SCI = M×0.5 + E×0.25 + D×0.25</div>
+ <button onclick="openSG()" style="width:calc(100% - 24px);margin:10px 12px 4px;padding:9px 12px;background:#0f172a;border:1px solid #1e3a5f;border-radius:8px;color:#f5a623;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all 0.15s" onmouseover="this.style.background='#1e3a5f'" onmouseout="this.style.background='#0f172a'">📖 <span>Scoring Guide</span></button>
  </div>
- <div class="sl">Dimensions (D1–D11)</div>
- <div class="dl" id="DL"></div>
-</div>
-
-<!-- MAIN -->
-<div class="mn">
- <div class="tb">
-  <div class="tr" id="TR"></div>
-  <div class="tb-r">
-   <span class="bdg" id="BDG"></span>
-   <button class="rbtn" id="RB" onclick="resetDim()">↺ Reset Dim</button>
-   <button class="ebtn" onclick="doExp()">⬇ Export</button>
-  </div>
  </div>
- 
- <div class="ct" id="MC"></div>
-</div>
 <script>
 // ==============================================================
 // DATA
@@ -1503,6 +1500,7 @@ function openDimActions(di){ RF='d'+di; gv('road'); }
 // ==============================================================
 function rMain(){
   var el=document.getElementById('MC');
+  if(!el) return;
   if(V==='dash'){ el.innerHTML=rDash(); return; }
   if(V==='base'){ el.innerHTML=rBase(); return; }
   if(V==='road'){ el.innerHTML=rRoad(); return; }
@@ -1519,6 +1517,7 @@ function rMain(){
 // ==============================================================
 function rSB(){
   var el=document.getElementById('DL');
+  if(!el) return;
   el.innerHTML=DIMS.map(function(d,di){
     var s=dimSCI(di); var col=scol(s);
     var on=(DI===di&&V==='assess');
@@ -1639,37 +1638,7 @@ function rAC(){
       if(qd.m===1) lkn='<div class="lkn">🔒 M=1: Evidence & Deployment locked at 1</div>';
       else{ if(em<5) lkn+='<div class="lkn">🔒 M='+qd.m+': Evidence capped at '+em+'</div>'; if(qd.e&&dm<5) lkn+='<div class="lkn">🔒 E='+qd.e+': Deployment capped at '+dm+'</div>'; }
       var sfl=qs2?'= '+qd.m+'×0.5+'+(qd.e||0)+'×0.25+'+(qd.d||0)+'×0.25':'';
-      medBlock='<div class="sdp">'
-        +'<div class="sdp-title">📖 Scoring Guide — How to rate each dimension</div>'
-        +'<div class="sdp-grid">'
-        +'<div class="sdp-col">'
-        +'<div class="sdp-hdr" style="color:#f5a623">⚡ MATURITY <span class="sdp-w">50%</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#ef4444">1</span><span class="sdp-t">Not established — no process exists</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#f97316">2</span><span class="sdp-t">Partially established — informal or inconsistent</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#eab308">3</span><span class="sdp-t">Operational — defined and generally followed</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#3b82f6">4</span><span class="sdp-t">Well managed — measured and consistently applied</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#22c55e">5</span><span class="sdp-t">World class — benchmark standard, continuously improved</span></div>'
-        +'</div>'
-        +'<div class="sdp-col">'
-        +'<div class="sdp-hdr" style="color:#60a5fa">📄 EVIDENCE <span class="sdp-w">25%</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#ef4444">1</span><span class="sdp-t">No evidence — nothing to show</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#f97316">2</span><span class="sdp-t">Document available — policy or SOP exists on paper</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#eab308">3</span><span class="sdp-t">Implementation verified — evidence it is being used</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#3b82f6">4</span><span class="sdp-t">Performance verified — results and outcomes evidenced</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#22c55e">5</span><span class="sdp-t">Real-time system verified — live data confirms performance</span></div>'
-        +'</div>'
-        +'<div class="sdp-col">'
-        +'<div class="sdp-hdr" style="color:#a78bfa">🏢 DEPLOYMENT <span class="sdp-w">25%</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#ef4444">1</span><span class="sdp-t">Not deployed — exists nowhere in the organisation</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#f97316">2</span><span class="sdp-t">Pilot deployment — one team or location only</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#eab308">3</span><span class="sdp-t">Department deployed — multiple teams using it</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#3b82f6">4</span><span class="sdp-t">Widely deployed — most of the organisation</span></div>'
-        +'<div class="sdp-row"><span class="sdp-n" style="color:#22c55e">5</span><span class="sdp-t">Enterprise wide — entire organisation without exception</span></div>'
-        +'</div>'
-        +'</div>'
-        +'<div class="sdp-formula">SCI Formula: <strong>(M × 0.50) + (E × 0.25) + (D × 0.25)</strong> — Score each dimension independently then rate below</div>'
-        +'</div>'
-        +'<div class="med-block">'
+      medBlock='<div class="med-block">'
         +'<div class="dr"><div class="dlc"><div class="dll c3">Maturity</div><div class="dls">Weight: 50%</div></div>'
         +'<div class="dbs">'+mkBtns('m',5,ML,qd.m,qi)+'</div></div>'
         +'<div class="dr"><div class="dlc"><div class="dll" style="color:#60a5fa">Evidence</div><div class="dls">Weight: 25%</div></div>'
@@ -2262,10 +2231,35 @@ window.addEventListener('load', function(){
   }, 200);
 });
 
-initBL();
-initST();
-rSB();
+
+function openSG(){
+  var m=document.getElementById('sg-modal');
+  if(m) m.style.display='block';
+}
+function closeSG(){
+  var m=document.getElementById('sg-modal');
+  if(m) m.style.display='none';
+}
+document.addEventListener('DOMContentLoaded', function(){
+  initBL();
+  initST();
+  rSB();
+  gv('dash');
+});
 gv('dash');
 </script>
+<!-- Scoring Guide Modal -->
+<div id="sg-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px)" onclick="if(event.target===this)closeSG()">
+ <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(920px,95vw);max-height:90vh;overflow-y:auto;background:#0a1628;border:1px solid #1e3a5f;border-radius:14px;box-shadow:0 24px 80px rgba(0,0,0,0.7)">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #1e293b;position:sticky;top:0;background:#0a1628;z-index:1"><div><div style="font-size:15px;font-weight:800;color:#f1f5f9">📖 ScaleOS™ Scoring Guide</div><div style="font-size:11px;color:#7890a8;margin-top:2px">How to rate Maturity, Evidence and Deployment for each capability</div></div><button onclick="closeSG()" style="background:#1e293b;border:1px solid #334155;border-radius:6px;color:#94a3b8;font-size:18px;width:32px;height:32px;cursor:pointer;font-weight:700">×</button></div>
+  <div style="margin:16px 24px;background:#0f172a;border:1px solid #1e3a5f;border-radius:8px;padding:12px 16px;text-align:center"><span style="font-size:13px;color:#64748b">SCI Formula: </span><strong style="font-size:14px;color:#f5a623">(M × 0.50) + (E × 0.25) + (D × 0.25)</strong></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;padding:0 24px 24px">
+   <div><div style="font-size:12px;font-weight:800;color:#f5a623;margin-bottom:12px">⚡ MATURITY <span style="font-size:9px;background:#1e293b;padding:2px 7px;border-radius:8px;color:#64748b">50%</span></div><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#ef4444;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Not established — no process exists</span></div><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#f97316;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Partially established — informal or inconsistent</span></div><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#eab308;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Operational — defined and generally followed</span></div><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#3b82f6;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Well managed — measured and consistently applied</span></div><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#22c55e;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">World class — benchmark standard, continuously improved</span></div></div></div>
+   <div><div style="font-size:12px;font-weight:800;color:#60a5fa;margin-bottom:12px">📄 EVIDENCE <span style="font-size:9px;background:#1e293b;padding:2px 7px;border-radius:8px;color:#64748b">25%</span></div><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#ef4444;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">No evidence — nothing to show</span></div><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#f97316;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Document available — policy or SOP exists on paper</span></div><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#eab308;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Implementation verified — evidence it is being used</span></div><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#3b82f6;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Performance verified — results and outcomes evidenced</span></div><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#22c55e;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Real-time system verified — live data confirms performance</span></div></div></div>
+   <div><div style="font-size:12px;font-weight:800;color:#a78bfa;margin-bottom:12px">🏢 DEPLOYMENT <span style="font-size:9px;background:#1e293b;padding:2px 7px;border-radius:8px;color:#64748b">25%</span></div><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#ef4444;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Not deployed — exists nowhere in the organisation</span></div><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#f97316;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Pilot deployment — one team or location only</span></div><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#eab308;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Department deployed — multiple teams using it</span></div><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#3b82f6;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Widely deployed — most of the organisation</span></div><div style="display:flex;gap:10px;align-items:flex-start"><span style="min-width:22px;height:22px;background:#22c55e;border-radius:5px;font-size:11px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</span><span style="font-size:12px;color:#94a3b8;line-height:1.4">Enterprise wide — entire organisation without exception</span></div></div></div>
+  </div>
+  <div style="margin:0 24px 24px;background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px 16px"><div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:6px">⚖️ GOVERNANCE RULES</div><div style="display:flex;gap:20px;flex-wrap:wrap"><span style="font-size:11px;color:#64748b">🔒 M=1 auto-locks E=1, D=1</span><span style="font-size:11px;color:#64748b">📊 M caps max Evidence</span><span style="font-size:11px;color:#64748b">📦 E caps max Deployment</span><span style="font-size:11px;color:#64748b">🚫 NO answer locks all at 1</span></div></div>
+ </div>
+</div>
 </body>
 </html>
