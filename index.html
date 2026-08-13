@@ -40,10 +40,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 .sg-formula{background:#071828;border:1px solid #1a3a55;border-radius:8px;padding:12px 14px;text-align:center;font-size:15px;font-weight:800;color:#b8c7d4;margin-bottom:16px}
 .sg-formula strong{color:#eab308}.sg-formula .ec{color:#60a5fa}.sg-formula .dc{color:#a78bfa}
 .sg-sec-t{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin:16px 0 8px}.sg-col-hdr{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}.sg-pct{font-size:9px;background:#1e293b;padding:2px 7px;border-radius:8px;color:#64748b;font-weight:600}
-.sg-lv{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #12233a;align-items:flex-start}
+.sg-lv{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #12233a;align-items:flex-start;align-items:flex-start}
 .sg-lv:last-child{border-bottom:none}
 .sg-n{width:22px;height:22px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#071018}
-.sg-lt{font-size:13px;color:#c3d1de}
+.sg-lt{font-size:12px;color:#c3d1de;line-height:1.5;flex:1}
 .sg-band-row{display:flex;align-items:center;gap:9px;padding:6px 0}
 .sg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
 .sg-brange{font-size:13px;font-weight:700;color:#b8c7d4;min-width:78px}
@@ -104,7 +104,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 .epg{flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:5px}
 .ep{background:#0f172a;border-radius:6px;padding:5px 9px;display:flex;align-items:center;gap:5px;border-left:3px solid}
 .epn{font-size:12px;color:#8899aa;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.eps{font-size:14px;font-weight:800}
+.eps{font-size:13px;font-weight:800;flex-shrink:0;white-space:nowrap}
 .dcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(335px,1fr));gap:11px;padding:0 22px 22px}
 .dc2{background:#1e293b;border-radius:10px;border:1px solid #334155;overflow:hidden}
 .dh{padding:12px 14px;display:flex;align-items:center;gap:9px;border-bottom:1px solid #334155;border-top:3px solid}
@@ -236,10 +236,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 .es{margin-bottom:18px}
 .est{font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #1e293b}
 .eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
-.ed{background:#1e293b;border-radius:8px;border:1px solid #334155;padding:12px;display:flex;align-items:center;gap:10px;border-left:4px solid}
-.edi{flex:1}
-.edc{font-size:12px;color:#7890a8;margin-bottom:2px}
-.edn{font-size:14px;font-weight:700;color:#e2e8f0}
+.ed{background:#1e293b;border-radius:8px;border:1px solid #334155;padding:12px;display:flex;align-items:center;gap:8px;overflow:hidden;border-left:4px solid}
+.edi{flex:1;min-width:0;overflow:hidden}
+.edc{font-size:12px;color:#7890a8;margin-bottom:2px;min-width:0;flex:1;overflow:hidden}
+.edn{font-size:13px;font-weight:700;color:#e2e8f0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.edvs{font-size:22px;font-weight:800;flex-shrink:0;white-space:nowrap;min-width:52px;text-align:right;padding-left:6px}
 .edb{height:4px;background:#334155;border-radius:2px;margin-top:6px;overflow:hidden}
 .edbf{height:4px;border-radius:2px}
 .edv{font-size:20px;font-weight:900}
@@ -535,6 +536,27 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 .ik-start-btn.ready:active{transform:scale(0.98)}
 .ik-not-ready-msg{font-size:12px;color:#7890a8;margin-top:10px}
 .ik-ready-msg{font-size:13px;color:#22c55e;margin-top:10px;font-weight:600}
+
+.nav-dim-btn{
+  padding:5px 12px;
+  background:#0f2040;
+  border:1px solid #1e3a5f;
+  border-radius:6px;
+  color:#60a5fa;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .15s;
+  margin-left:4px;
+}
+.nav-dim-btn:hover{
+  background:#1e3a5f;
+  color:#fff;
+}
+.nav-dim-btn:disabled{
+  opacity:0.3;
+  cursor:not-allowed;
+}
 </style>
 </head>
 <body>
@@ -762,15 +784,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
   <div class="tr" id="TR"></div>
   <div class="tb-r">
    <span class="bdg" id="BDG"></span>
-   <button class="rbtn" id="RB" onclick="resetDim()">↺ Reset Dim</button>
-   <button class="ebtn" onclick="doExp()">⬇ Export</button>
+   <button class="rbtn" id="RB" onclick="resetDim()">&#8635; Reset Dim</button>
+   <button class="nav-dim-btn" id="btn-prev" onclick="prevDim()" style="display:none">&#9664; Prev</button>
+   <button class="nav-dim-btn" id="btn-next" onclick="nextDim()" style="display:none">Next &#9654;</button>
+   <button class="ebtn" onclick="doExp()">&#8595; Export</button>
   </div>
  </div>
- 
  <div class="ct" id="MC"></div>
 </div>
-</div>
-
+<!-- END MAIN -->
 <script>
 // ==============================================================
 // DATA
@@ -1159,9 +1181,13 @@ function gv(v){
   var rb=document.getElementById('RB');
   bdg.style.display='none'; rb.style.display='none';
   document.getElementById('TR').innerHTML='';
+  var bp=document.getElementById('btn-prev'),bn=document.getElementById('btn-next');
+  if(bp) bp.style.display=(v==='assess')?'inline-block':'none';
+  if(bn) bn.style.display=(v==='assess')?'inline-block':'none';
   if(v==='assess'){
     bdg.style.display='inline-block'; rb.style.display='inline-block';
     var d=DIMS[DI]; bdg.textContent=d.code+' · '+d.name; bdg.style.color=d.color;
+    if(typeof updNavBtns==='function') updNavBtns();
     var tr=document.getElementById('TR');
     ['assess','report'].forEach(function(t){
       var b=document.createElement('button');
@@ -1474,17 +1500,470 @@ function rRoad(){
 function rRepHub(){
   if(RT==='exec') return rExec();
   if(RT==='detail') return rDetail();
+  if(RT==='ceo') return rCEO();
+  if(RT==='summary') return rSummary();
   return '<div class="rhw"><div class="rht">Reports</div><div class="rhs">Select a report type to view</div>'
     +'<div class="rhg">'
     +'<div class="rhc" data-rt="exec"><div class="rhci">📊</div><div class="rhcn">Executive Report</div><div class="rhcd">High-level summary for leadership — Enterprise SCI, dimension scores, and top priorities</div></div>'
-    +'<div class="rhc" data-rt="detail"><div class="rhci">📋</div><div class="rhcn">Detailed Assessment</div><div class="rhcd">Full capability breakdown with M, E, D scores across all 11 dimensions</div></div>'
-    +'<div class="rhc" data-gv="comb"><div class="rhci">🔍</div><div class="rhcn">Combined Analysis</div><div class="rhcd">Radar chart, gap analysis, and benchmark comparison across all dimensions</div></div>'
+    +'<div class="rhc" data-rt="detail"><div class="rhci">📋</div><div class="rhcn">Detailed Assessment</div><div class="rhcd">Full capability breakdown with M, E, D scores across all 11 dimensions</div></div>'+'<div class="rhc" data-rt="ceo"><div class="rhci">🎯</div><div class="rhcn">CEO Final Analysis Report</div><div class="rhcd">Executive-ready report with radar chart, top gaps, revenue at risk, quick-win roadmap and strategic next steps</div></div>'+'<div class="rhc" data-rt="summary"><div class="rhcn">📑</div><div class="rhcn">Overall Summary Report</div><div class="rhcd">Complete enterprise overview — all dimensions, capability scores, strengths, gaps and 90-day action plan</div></div>'
+    +
     +'</div></div>';
 }
 
 // ==============================================================
 // EXEC REPORT
 // ==============================================================
+function rCEO(){
+  return '<div style="padding:16px 20px 0">'
+    +'<button onclick="RT=\'\';gv(\'reps\')" style="background:#0f2040;border:1px solid #1e3a5f;border-radius:6px;color:#60a5fa;font-size:12px;font-weight:700;padding:6px 14px;cursor:pointer">&#8592; Back to Reports</button>'
+    +'</div>'
+    +'<div style="text-align:center;padding:40px 20px">'
+    +'<div style="font-size:48px;margin-bottom:16px">🎯</div>'
+    +'<div style="font-size:20px;font-weight:800;color:#f1f5f9;margin-bottom:8px">CEO Final Analysis Report</div>'
+    +'<div style="font-size:13px;color:#7890a8;margin-bottom:10px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6">'
+    +'A world-class, board-ready executive report — 7 sections across 6 pages. Includes: The Verdict, Enterprise Radar, Burning Platform with revenue at risk, Strengths, 90-Day Action Plan, Strategic Roadmap and Engagement Recommendation.'
+    +'</div>'
+    +'<div style="font-size:11px;color:#475569;margin-bottom:24px">Designed for CEO, Board and Investor review. Benchmarked against world-class standards.</div>'
+    +'<button onclick="genCEORpt()" style="padding:14px 40px;background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,0.4)">'
+    +'🎯 Generate CEO Report'
+    +'</button>'
+    +'<div style="margin-top:10px;font-size:11px;color:#475569">Opens print-ready PDF · Emails to sraj1971@gmail.com</div>'
+    +'</div>';
+}
+
+// ==============================================================
+// CEO FINAL ANALYSIS REPORT
+// ==============================================================
+function genCEORpt(){
+  var es=entSCI(), sciCol=es<2?'#c0392b':es<3?'#e67e22':es<4?'#8b7355':'#1e5c3a';
+  var now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+  var company=(window.IK&&IK.company)?IK.company:'Enterprise';
+  var assessId=(window.IK&&IK.assessmentId)?IK.assessmentId:'—';
+  var industry=(window.IK&&IK.industry)?IK.industry:'—';
+  var revenue=(window.IK&&IK.revenue)?IK.revenue:'—';
+  var sciLabel=es<2?'CRITICAL — IMMEDIATE ACTION REQUIRED':es<3?'DEVELOPING — SIGNIFICANT GAPS PRESENT':es<4?'PROGRESSING — FOUNDATION BUILDING':es<4.5?'WELL MANAGED — STRONG FOUNDATION':'WORLD CLASS';
+  var totRisk=entRisk();
+  var er=entEstRate();
+  var assessed=0,complete=0;
+  DIMS.forEach(function(_,di){ DIMS[di].caps.forEach(function(_,ci){ if(capSCI(di,ci)>0)assessed++; if(capStat(di,ci)==='✅')complete++; }); });
+
+  // Gaps & strengths
+  var gaps=[],strengths=[];
+  DIMS.forEach(function(d,di){
+    d.caps.forEach(function(c,ci){
+      var cs=capSCI(di,ci);
+      if(cs>0&&cs<2.5) gaps.push({score:cs,name:c.name,dim:d.code,dimName:d.name,color:d.color,di:di,ci:ci});
+      if(cs>=3.5) strengths.push({score:cs,name:c.name,dim:d.code,dimName:d.name,color:d.color});
+    });
+  });
+  gaps.sort(function(a,b){return a.score-b.score;});
+  strengths.sort(function(a,b){return b.score-a.score;});
+
+  // Dim scores sorted for priority
+  var dimScores=DIMS.map(function(d,di){return {di:di,code:d.code,name:d.name,color:d.color,score:dimSCI(di),risk:dimRisk(di)};});
+  var critDims=dimScores.filter(function(d){return d.score>0&&d.score<2.5;}).sort(function(a,b){return a.score-b.score;});
+  var strongDims=dimScores.filter(function(d){return d.score>=3.5;}).sort(function(a,b){return b.score-a.score;});
+
+  // Business consequences per critical dim
+  var bizConseq={
+    'D1':'Strategic misalignment, poor governance and unclear accountability — leadership decisions lack data and structured follow-through.',
+    'D2':'Talent gaps, high attrition and people dependency create execution risk and limit scalability of the organisation.',
+    'D3':'Weak financial controls, poor forecasting and lack of profitability visibility compromise decision quality and investor confidence.',
+    'D4':'Innovation pipeline is thin or absent. The organisation risks falling behind on product and technology — losing competitive edge.',
+    'D5':'Operational inefficiency, unplanned downtime and quality losses are directly bleeding revenue and margin on the shop floor.',
+    'D6':'Excess inventory, supplier failures and poor demand planning are locking up working capital and creating delivery risk.',
+    'D7':'Quality gaps expose the company to customer complaints, regulatory non-compliance and warranty costs that erode margin.',
+    'D8':'Manual processes, data silos and low digital maturity limit speed, visibility and management decision quality.',
+    'D9':'Projects run over time and over budget. Strategic initiatives fail to deliver. Change is slow and unsustained.',
+    'D10':'Growth levers — new markets, new customers, new channels — are not being systematically activated. Revenue ceiling is near.',
+    'D11':'Customer relationships, market intelligence and commercial capability are underdeveloped, limiting revenue growth and retention.'
+  };
+
+  // Quick wins — lowest scoring caps with 90-day actions
+  var quickWins=[];
+  gaps.forEach(function(g){
+    var band=Math.min(4,Math.floor(g.score));
+    var acts=(WN[band]||[]).filter(function(a){return a.h==='90d';});
+    if(acts.length>0) quickWins.push({dim:g.dim,name:g.name,score:g.score,color:g.color,action:acts[0].t,risk:capRisk(g.di,g.ci)});
+  });
+  quickWins=quickWins.slice(0,6);
+
+  // ── RADAR SVG ─────────────────────────────────────────────────
+  var cx=240,cy=240,maxR=185,n=DIMS.length;
+  var rings='';
+  for(var lv=1;lv<=5;lv++){
+    var r=(lv/5)*maxR;
+    var pts=DIMS.map(function(_,i){var a=(i/n)*2*Math.PI-Math.PI/2;return (cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1);}).join(' ');
+    rings+='<polygon points="'+pts+'" fill="none" stroke="#2a3f6e" stroke-width="0.8"/>';
+    rings+='<text x="'+(cx+3)+'" y="'+(cy-r+4)+'" font-size="8" fill="#4a5f8e">'+lv+'</text>';
+  }
+  var axes='',labels='',dots='';
+  DIMS.forEach(function(d,i){
+    var a=(i/n)*2*Math.PI-Math.PI/2;
+    var xe=(cx+maxR*Math.cos(a)).toFixed(1),ye=(cy+maxR*Math.sin(a)).toFixed(1);
+    axes+='<line x1="'+cx+'" y1="'+cy+'" x2="'+xe+'" y2="'+ye+'" stroke="#2a3f6e" stroke-width="0.8"/>';
+    var lr=maxR+26,lx=(cx+lr*Math.cos(a)).toFixed(1),ly=(cy+lr*Math.sin(a)).toFixed(1);
+    var anch=Math.cos(a)>0.1?'start':Math.cos(a)<-0.1?'end':'middle';
+    var ds=dimSCI(i),col=ds<2?'#ef4444':ds<3?'#f97316':ds<4?'#eab308':'#22c55e';
+    labels+='<text x="'+lx+'" y="'+parseFloat(ly)+'" font-size="8.5" font-weight="700" fill="#e2e8f0" text-anchor="'+anch+'">'+d.code+'</text>';
+    labels+='<text x="'+lx+'" y="'+(parseFloat(ly)+11)+'" font-size="9" fill="'+col+'" text-anchor="'+anch+'" font-weight="800">'+sl(ds)+'</text>';
+    var r2=(ds/5)*maxR;
+    dots+='<circle cx="'+(cx+r2*Math.cos(a)).toFixed(1)+'" cy="'+(cy+r2*Math.sin(a)).toFixed(1)+'" r="4.5" fill="'+col+'" stroke="#0a1628" stroke-width="1.5"/>';
+  });
+  var basePts=DIMS.map(function(_,i){var a=(i/n)*2*Math.PI-Math.PI/2,r=(4/5)*maxR;return (cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1);}).join(' ');
+  var scorePts=DIMS.map(function(_,i){var a=(i/n)*2*Math.PI-Math.PI/2,r=(dimSCI(i)/5)*maxR;return (cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1);}).join(' ');
+  var radarSVG='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" width="420" height="420">'
+    +'<rect width="480" height="480" fill="#0a1628" rx="8"/>'
+    +rings+axes
+    +'<polygon points="'+basePts+'" fill="none" stroke="#f5a623" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.6"/>'
+    +'<polygon points="'+scorePts+'" fill="rgba(59,130,246,0.2)" stroke="#3b82f6" stroke-width="2"/>'
+    +dots+labels
+    +'<text x="240" y="472" font-size="8" fill="#4a5f8e" text-anchor="middle">&#9644; Enterprise Score &nbsp; &#x2508; Target 4.0</text>'
+    +'</svg>';
+
+  // ── BUILD REPORT HTML ────────────────────────────────────────
+  var R='<!DOCTYPE html><html><head><meta charset="UTF-8">'
+    +'<title>CEO Report — '+company+' — '+now+'</title>'
+    +'<style>'
+    +'*{box-sizing:border-box;margin:0;padding:0}'
+    +'body{font-family:"Segoe UI",Arial,sans-serif;background:#fff;color:#1a1a2e}'
+    +'@media print{.pb{page-break-before:always}.npb{page-break-inside:avoid}}'
+    +'@page{margin:12mm 14mm;size:A4}'
+
+    // Cover styles
+    +'.cover{background:linear-gradient(160deg,#06101e 0%,#0f2040 60%,#1a3060 100%);min-height:260px;padding:36px 40px;position:relative;border-bottom:4px solid #f5a623}'
+    +'.cover-tag{font-size:10px;color:#f5a623;font-weight:700;letter-spacing:3px;margin-bottom:8px}'
+    +'.cover-co{font-size:28px;font-weight:900;color:#fff;margin-bottom:4px}'
+    +'.cover-title{font-size:16px;color:#94a3b8;margin-bottom:20px}'
+    +'.cover-sci{font-size:64px;font-weight:900;line-height:1}'
+    +'.cover-label{font-size:14px;font-weight:700;margin-top:6px;letter-spacing:1px}'
+    +'.cover-meta{font-size:11px;color:#64748b;margin-top:16px}'
+
+    // Section styles
+    +'.sec{padding:20px 28px;margin-bottom:12px}'
+    +'.sec-hdr{font-size:11px;font-weight:700;color:#f5a623;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}'
+    +'.sec-title{font-size:18px;font-weight:800;color:#0f2040;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #f5a623}'
+    +'.sec-dark{background:#06101e;padding:20px 28px;margin-bottom:12px}'
+
+    // KPI strip
+    +'.kbar{display:flex;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:14px}'
+    +'.kpi{flex:1;padding:14px 10px;text-align:center;border-right:1px solid #e2e8f0}'
+    +'.kpi:last-child{border-right:none}'
+    +'.kv{font-size:22px;font-weight:900;margin-bottom:2px}'
+    +'.kl{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px}'
+
+    // Traffic light dims
+    +'.dim-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f1f5f9}'
+    +'.dim-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}'
+    +'.dim-bar-bg{flex:1;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}'
+    +'.dim-bar-fill{height:8px;border-radius:4px}'
+
+    // Gap cards
+    +'.gap-card{border-left:4px solid #ef4444;background:#fef2f2;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:10px}'
+    +'.gap-card-title{font-size:13px;font-weight:800;color:#1e293b;margin-bottom:4px}'
+    +'.gap-card-dim{font-size:10px;font-weight:700;color:#ef4444;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}'
+    +'.gap-card-impact{font-size:11px;color:#374151;line-height:1.5;margin-bottom:6px}'
+    +'.gap-card-risk{font-size:11px;font-weight:700;color:#ef4444}'
+
+    // Strength items
+    +'.str-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#f0fdf4;border-left:3px solid #22c55e;border-radius:0 6px 6px 0;margin-bottom:6px}'
+
+    // Action table
+    +'table{width:100%;border-collapse:collapse}'
+    +'th{background:#0f2040;color:#fff;padding:8px 10px;font-size:9.5px;font-weight:700;text-align:left;letter-spacing:0.5px}'
+    +'td{padding:8px 10px;font-size:11px;border-bottom:1px solid #f1f5f9;vertical-align:top}'
+    +'tr:nth-child(even) td{background:#f8fafc}'
+
+    // Roadmap
+    +'.horizon{border-radius:8px;padding:14px 16px;margin-bottom:10px}'
+    +'.h-tag{font-size:10px;font-weight:700;letter-spacing:1.5px;margin-bottom:6px}'
+    +'.h-item{font-size:11px;color:#374151;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.1);line-height:1.4}'
+
+    // Footer
+    +'.footer{background:#06101e;padding:12px 28px;display:flex;align-items:center;justify-content:space-between}'
+    +'</style></head><body>'
+
+    // ══ PAGE 1: THE VERDICT ═════════════════════════════════════
+    +'<div class="cover">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+    +'<div>'
+    +'<div class="cover-tag">MIRAI AXIS SCALEOS™ &nbsp;·&nbsp; ENTERPRISE CAPABILITY ASSESSMENT</div>'
+    +'<div class="cover-co">'+company+'</div>'
+    +'<div class="cover-title">CEO Confidential Report &nbsp;·&nbsp; '+industry+' &nbsp;·&nbsp; '+revenue+'</div>'
+    +'<div class="cover-sci" style="color:'+sciCol+'">'+sl(es)+'<span style="font-size:28px;color:#64748b"> / 5.0</span></div>'
+    +'<div class="cover-label" style="color:'+sciCol+'">'+sciLabel+'</div>'
+    +'<div class="cover-meta">Assessment ID: '+assessId+' &nbsp;·&nbsp; Date: '+now+' &nbsp;·&nbsp; '+assessed+' of 99 capabilities assessed</div>'
+    +'</div>'
+    +'<div style="text-align:right">'
+    +'<div style="font-size:10px;color:#f5a623;font-weight:700;margin-bottom:8px">ENTERPRISE CAPABILITY SCORE</div>'
+    +(totRisk>0?'<div style="background:#3b0606;border:1px solid #ef4444;border-radius:8px;padding:12px 16px;text-align:center">'
+    +'<div style="font-size:10px;color:#fca5a5;margin-bottom:4px">⚠️ REVENUE AT RISK</div>'
+    +'<div style="font-size:22px;font-weight:900;color:#ef4444">'+fmtRisk(totRisk)+'</div>'
+    +'<div style="font-size:9px;color:#fca5a5">Estimated annual exposure</div>'
+    +'</div>':'')
+    +'</div>'
+    +'</div>'
+    +'</div>'
+
+    // Reality statement
+    +'<div style="background:#fffbf0;border-left:4px solid #f5a623;padding:14px 20px;margin:14px 0">'
+    +'<div style="font-size:11px;font-weight:700;color:#92400e;margin-bottom:4px">THE ENTERPRISE REALITY</div>'
+    +'<div style="font-size:13px;color:#374151;line-height:1.6">'
+    +(es<2?'<strong>'+company+' is operating with critical capability gaps across multiple dimensions.</strong> The current state exposes the organisation to significant revenue risk, operational failure and strategic stagnation. Immediate structured intervention is essential before growth initiatives can be considered.'
+    :es<3?'<strong>'+company+' has foundational processes in place but is operating with significant capability gaps</strong> that are limiting growth, operational efficiency and profitability. The organisation has the intent but lacks the system rigour and evidence base required to compete at the next level.'
+    :es<4?'<strong>'+company+' is a progressing enterprise with real operational strengths.</strong> The foundation is solid in key areas. Closing the identified gaps — particularly in the lower-scoring dimensions — will unlock the next phase of scalable, profitable growth.'
+    :'<strong>'+company+' demonstrates strong enterprise capability across most dimensions.</strong> The focus now is on sustaining excellence, closing remaining gaps and leveraging strengths to drive competitive differentiation and market leadership.')
+    +'</div>'
+    +'</div>'
+
+    // KPI Bar
+    +'<div class="kbar">'
+    +'<div class="kpi"><div class="kv" style="color:'+sciCol+'">'+sl(es)+'</div><div class="kl">Enterprise SCI</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#2563eb">'+assessed+'</div><div class="kl">Caps Assessed</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#22c55e">'+(er.pct!==null?er.pct+'%':'—')+'</div><div class="kl">Established %</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#ef4444">'+gaps.length+'</div><div class="kl">Gaps Found</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#22c55e">'+strengths.length+'</div><div class="kl">Strengths</div></div>'
+    +(totRisk>0?'<div class="kpi"><div class="kv" style="color:#ef4444;font-size:16px">'+fmtRisk(totRisk)+'</div><div class="kl">Revenue at Risk</div></div>':'')
+    +'</div>'
+
+    // ══ PAGE 2: ENTERPRISE CAPABILITY RADAR ═════════════════════
+    +'<div class="pb"></div>'
+    +'<div class="sec-hdr" style="padding:16px 28px 0;color:#f5a623">ENTERPRISE CAPABILITY RADAR</div>'
+    +'<div style="padding:0 28px 8px;font-size:18px;font-weight:800;color:#0f2040;border-bottom:2px solid #f5a623;margin-bottom:14px">How the business scores across all 11 dimensions</div>'
+    +'<div style="display:flex;align-items:flex-start;gap:20px;padding:0 20px">'
+    +'<div>'+radarSVG+'</div>'
+    +'<div style="flex:1">'
+    +'<div style="font-size:11px;color:#64748b;line-height:1.6;margin-bottom:16px;padding:10px;background:#f8fafc;border-radius:6px">'
+    +'The radar shows where the enterprise is today (blue) vs the world-class target of 4.0 (gold dashed). The wider the gap between the two, the greater the risk and improvement opportunity. Dimensions scoring below 2.0 require immediate leadership attention.'
+    +'</div>'
+    +dimScores.map(function(d){
+      var col=d.score<2?'#ef4444':d.score<3?'#f97316':d.score<4?'#eab308':'#22c55e';
+      var label=d.score<2?'Critical':d.score<3?'Developing':d.score<4?'Progressing':'Strong';
+      var pct=Math.round((d.score/5)*100);
+      return '<div class="dim-row">'
+        +'<div class="dim-dot" style="background:'+col+'"></div>'
+        +'<div style="font-size:10px;font-weight:700;color:'+d.color+';min-width:28px">'+d.code+'</div>'
+        +'<div style="flex:1;font-size:10px;color:#374151">'+d.name+'</div>'
+        +'<div class="dim-bar-bg"><div class="dim-bar-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'
+        +'<div style="font-size:11px;font-weight:800;color:'+col+';min-width:30px;text-align:right">'+sl(d.score)+'</div>'
+        +'<div style="font-size:9px;font-weight:700;color:'+col+';min-width:60px;text-align:right">'+label+'</div>'
+      +'</div>';
+    }).join('')
+    +'</div></div>'
+
+    // ══ PAGE 3: THE BURNING PLATFORM ════════════════════════════
+    +'<div class="pb"></div>'
+    +'<div style="background:linear-gradient(135deg,#1a0505,#2d0a0a);padding:20px 28px;border-bottom:3px solid #ef4444">'
+    +'<div style="font-size:10px;font-weight:700;color:#fca5a5;letter-spacing:2px;margin-bottom:4px">THE BURNING PLATFORM</div>'
+    +'<div style="font-size:20px;font-weight:800;color:#fff">Critical gaps costing the business today</div>'
+    +(totRisk>0?'<div style="font-size:13px;color:#fca5a5;margin-top:6px">Total estimated revenue at risk: <strong style="color:#ef4444;font-size:16px">'+fmtRisk(totRisk)+'</strong> per year — this is what the gaps are costing.</div>':'')
+    +'</div>'
+    // Top 5 critical gaps with business consequences
+    +'<div style="padding:16px 28px">'
+    +gaps.slice(0,5).map(function(g,i){
+      var rk=capRisk(g.di,g.ci);
+      var parentDim=DIMS[g.di];
+      var conseq=bizConseq[g.dim]||'This capability gap is limiting enterprise performance and creating operational risk.';
+      return '<div class="gap-card npb">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+        +'<div style="flex:1">'
+        +'<div class="gap-card-dim">'+g.dim+' — '+parentDim.name+'</div>'
+        +'<div class="gap-card-title">'+(i+1)+'. '+g.name+'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin:6px 0">'
+        +'<div style="background:#ef4444;color:#fff;font-size:11px;font-weight:800;padding:2px 10px;border-radius:10px">Score: '+sl(g.score)+' / 5.0</div>'
+        +(rk>0?'<div style="background:#7f1d1d;color:#fca5a5;font-size:11px;font-weight:700;padding:2px 10px;border-radius:10px">⚠️ Risk: '+fmtRisk(rk)+'</div>':'')
+        +'</div>'
+        +'<div class="gap-card-impact"><strong>Business Impact:</strong> '+conseq+'</div>'
+        +'</div>'
+        +'</div>'
+      +'</div>';
+    }).join('')
+    +'</div>'
+
+    // Dimension-level risks
+    +(critDims.length>0?'<div style="padding:0 28px 16px">'
+    +'<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Critical Dimensions Requiring CEO Attention:</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:8px">'
+    +critDims.slice(0,5).map(function(d){
+      return '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:8px 12px;flex:1;min-width:150px">'
+        +'<div style="font-size:10px;font-weight:700;color:'+d.color+'">'+d.code+'</div>'
+        +'<div style="font-size:11px;color:#1e293b;font-weight:600">'+d.name+'</div>'
+        +'<div style="font-size:13px;font-weight:900;color:#ef4444">'+sl(d.score)+'</div>'
+        +(d.risk>0?'<div style="font-size:10px;color:#ef4444">Risk: '+fmtRisk(d.risk)+'</div>':'')
+      +'</div>';
+    }).join('')
+    +'</div></div>':'')
+
+    // ══ PAGE 4: WHERE YOU ARE STRONG ════════════════════════════
+    +'<div class="pb"></div>'
+    +'<div style="background:linear-gradient(135deg,#022c1a,#044d2a);padding:20px 28px;border-bottom:3px solid #22c55e">'
+    +'<div style="font-size:10px;font-weight:700;color:#86efac;letter-spacing:2px;margin-bottom:4px">WHERE YOU ARE STRONG</div>'
+    +'<div style="font-size:20px;font-weight:800;color:#fff">Competitive advantages to protect and leverage</div>'
+    +'<div style="font-size:12px;color:#86efac;margin-top:4px">These '+strengths.length+' capabilities are above 3.5 — they represent real, verified enterprise strengths.</div>'
+    +'</div>'
+    +'<div style="padding:16px 28px">'
+    // Strong dimensions
+    +(strongDims.length>0?'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px">'
+    +strongDims.map(function(d){
+      return '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;flex:1;min-width:160px">'
+        +'<div style="font-size:10px;font-weight:700;color:'+d.color+'">'+d.code+'</div>'
+        +'<div style="font-size:11px;color:#166534;font-weight:600;margin:2px 0">'+d.name+'</div>'
+        +'<div style="font-size:16px;font-weight:900;color:#16a34a">'+sl(d.score)+'</div>'
+      +'</div>';
+    }).join('')+'</div>':'')
+    // Top capability strengths
+    +'<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">Top Performing Capabilities:</div>'
+    +strengths.slice(0,8).map(function(g){
+      return '<div class="str-item">'
+        +'<span style="font-size:14px;color:#22c55e;font-weight:800">✓</span>'
+        +'<span style="font-size:10px;font-weight:700;color:'+g.color+'">'+g.dim+'</span>'
+        +'<span style="font-size:11px;color:#166534;flex:1">'+g.name+'</span>'
+        +'<span style="font-size:12px;font-weight:800;color:#16a34a">'+sl(g.score)+'</span>'
+      +'</div>';
+    }).join('')
+    +'<div style="margin-top:14px;padding:12px;background:#f0fdf4;border-radius:6px;font-size:12px;color:#166534;line-height:1.6">'
+    +'<strong>CEO Directive:</strong> These capabilities are your competitive moat. Protect them during the transformation. Do not allow cost-cutting or restructuring to erode these strengths. They are your platform for growth.'
+    +'</div>'
+    +'</div>'
+
+    // ══ PAGE 5: THE 90-DAY CEO ACTION PLAN ══════════════════════
+    +'<div class="pb"></div>'
+    +'<div style="background:linear-gradient(135deg,#06101e,#0f2040);padding:20px 28px;border-bottom:3px solid #f5a623">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:2px;margin-bottom:4px">90-DAY CEO ACTION PLAN</div>'
+    +'<div style="font-size:20px;font-weight:800;color:#fff">Low effort. Maximum impact. Start today.</div>'
+    +'<div style="font-size:12px;color:#94a3b8;margin-top:4px">These actions address the highest-risk capability gaps with the fastest time-to-impact.</div>'
+    +'</div>'
+    +'<div style="padding:16px 28px">'
+    +'<table>'
+    +'<thead><tr><th>#</th><th>Dimension</th><th>Capability Gap</th><th>Score</th><th>Recommended First Action</th><th>Risk</th></tr></thead>'
+    +'<tbody>'
+    +quickWins.map(function(q,i){
+      return '<tr>'
+        +'<td style="font-weight:800;color:#f5a623">'+(i+1)+'</td>'
+        +'<td style="font-weight:700;color:'+q.color+'">'+q.dim+'</td>'
+        +'<td>'+q.name+'</td>'
+        +'<td style="font-weight:800;color:#ef4444;text-align:center">'+sl(q.score)+'</td>'
+        +'<td style="color:#374151">'+q.action+'</td>'
+        +'<td style="font-weight:700;color:#ef4444;white-space:nowrap">'+(q.risk>0?fmtRisk(q.risk):'—')+'</td>'
+      +'</tr>';
+    }).join('')
+    +'</tbody></table>'
+    +'</div>'
+
+    // ══ PAGE 6: STRATEGIC ROADMAP ════════════════════════════════
+    +'<div class="pb"></div>'
+    +'<div style="background:linear-gradient(135deg,#06101e,#0f2040);padding:20px 28px;border-bottom:3px solid #f5a623">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:2px;margin-bottom:4px">STRATEGIC CAPABILITY ROADMAP</div>'
+    +'<div style="font-size:20px;font-weight:800;color:#fff">The 18-month transformation journey</div>'
+    +'</div>'
+    +'<div style="padding:16px 28px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">'
+
+    // Horizon 1: 0-90 days
+    +'<div style="background:#1a0a00;border:1px solid #f5a623;border-top:3px solid #f5a623;border-radius:6px;padding:14px">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:1px;margin-bottom:8px">⚡ HORIZON 1 — 0 to 90 DAYS</div>'
+    +'<div style="font-size:10px;font-weight:700;color:#fbbf24;margin-bottom:8px">Stabilise & Quick Wins</div>'
+    +dimScores.filter(function(d){return d.score>0&&d.score<3;}).slice(0,5).map(function(d){
+      var acts=(WN[Math.min(4,Math.floor(d.score))]||[]).filter(function(a){return a.h==='90d';});
+      return acts.length?'<div style="font-size:10px;color:#d4af7a;padding:3px 0;border-bottom:1px solid #2a1a00;line-height:1.4">▸ <strong style="color:'+d.color+'">'+d.code+':</strong> '+acts[0].t+'</div>':'';
+    }).join('')
+    +'</div>'
+
+    // Horizon 2: 3-6 months
+    +'<div style="background:#001a0a;border:1px solid #22c55e;border-top:3px solid #22c55e;border-radius:6px;padding:14px">'
+    +'<div style="font-size:10px;font-weight:700;color:#22c55e;letter-spacing:1px;margin-bottom:8px">🏗 HORIZON 2 — 3 to 6 MONTHS</div>'
+    +'<div style="font-size:10px;font-weight:700;color:#86efac;margin-bottom:8px">Build Systems & Structure</div>'
+    +dimScores.filter(function(d){return d.score>0&&d.score<3.5;}).slice(0,5).map(function(d){
+      var acts=(WN[Math.min(4,Math.floor(d.score))]||[]).filter(function(a){return a.h==='6m';});
+      return acts.length?'<div style="font-size:10px;color:#86efac;padding:3px 0;border-bottom:1px solid #002a10;line-height:1.4">▸ <strong style="color:'+d.color+'">'+d.code+':</strong> '+acts[0].t+'</div>':'';
+    }).join('')
+    +'</div>'
+
+    // Horizon 3: 6-18 months
+    +'<div style="background:#000d1a;border:1px solid #3b82f6;border-top:3px solid #3b82f6;border-radius:6px;padding:14px">'
+    +'<div style="font-size:10px;font-weight:700;color:#3b82f6;letter-spacing:1px;margin-bottom:8px">🚀 HORIZON 3 — 6 to 18 MONTHS</div>'
+    +'<div style="font-size:10px;font-weight:700;color:#93c5fd;margin-bottom:8px">Scale & Institutionalise</div>'
+    +dimScores.filter(function(d){return d.score>0;}).slice(0,5).map(function(d){
+      var acts=(WN[Math.min(4,Math.floor(d.score))]||[]).filter(function(a){return a.h==='12m';});
+      return acts.length?'<div style="font-size:10px;color:#93c5fd;padding:3px 0;border-bottom:1px solid #001020;line-height:1.4">▸ <strong style="color:'+d.color+'">'+d.code+':</strong> '+acts[0].t+'</div>':'';
+    }).join('')
+    +'</div>'
+    +'</div>'
+
+    // ══ FINAL PAGE: NEXT STEPS WITH MIRAI AXIS ══════════════════
+    +'<div class="pb"></div>'
+    +'<div style="background:linear-gradient(160deg,#06101e,#0f2040);padding:32px 40px;min-height:300px">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:2px;margin-bottom:8px">YOUR NEXT STEP</div>'
+    +'<div style="font-size:24px;font-weight:800;color:#fff;margin-bottom:6px">Transform capability into enterprise value</div>'
+    +'<div style="font-size:13px;color:#94a3b8;margin-bottom:28px;line-height:1.6">This report has shown you the reality of your enterprise capability today. The gaps identified are not problems — they are opportunities. Every gap closed is revenue recovered, risk reduced and competitive advantage built.</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px">'
+    +[
+      {icon:'🔍',title:'Outside-In Validation',desc:'Mirai Axis experts conduct a 2-day on-site validation to verify scores, surface hidden gaps and align leadership on priorities.'},
+      {icon:'🗺️',title:'Capability Roadmap',desc:'A structured 12-month improvement roadmap built around your specific gaps, resources and business goals.'},
+      {icon:'⚡',title:'Quick Win Execution',desc:'Hands-on support to execute the 90-day quick wins and demonstrate early results to the leadership team.'},
+      {icon:'📊',title:'Quarterly SCI Reviews',desc:'Track your improvement journey quarterly. Every ScaleOS™ reassessment shows how your enterprise SCI is growing.'}
+    ].map(function(item){
+      return '<div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 16px">'
+        +'<div style="font-size:20px;margin-bottom:6px">'+item.icon+'</div>'
+        +'<div style="font-size:12px;font-weight:700;color:#f5a623;margin-bottom:4px">'+item.title+'</div>'
+        +'<div style="font-size:11px;color:#94a3b8;line-height:1.5">'+item.desc+'</div>'
+      +'</div>';
+    }).join('')
+    +'</div>'
+    +'<div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;display:flex;align-items:center;justify-content:space-between">'
+    +'<div>'
+    +'<div style="font-size:14px;font-weight:800;color:#f5a623">Mirai Axis Consulting LLP</div>'
+    +'<div style="font-size:11px;color:#64748b">+91 94296 91496 &nbsp;·&nbsp; www.miraiaxisconsulting.com</div>'
+    +'</div>'
+    +'<div style="text-align:right">'
+    +'<div style="font-size:10px;color:#475569">ScaleOS™ Enterprise Capability Assessment</div>'
+    +'<div style="font-size:10px;color:#475569">Confidential — '+now+'</div>'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+
+    +'</body></html>';
+
+  // ── Open print window ──────────────────────────────────────
+  var win=window.open('','_blank','width=1000,height=800');
+  win.document.write(R);
+  win.document.close();
+  win.focus();
+  setTimeout(function(){ win.print(); },1200);
+
+  // ── Send email ─────────────────────────────────────────────
+  var sciL2=es<2?'Critical':es<3?'Developing':es<4?'Progressing':es<4.5?'Well Managed':'World Class';
+  var payload={
+    date:now,company:company,assessId:assessId,industry:industry,
+    enterpriseSCI:sl(es),sciLabel:sciL2,
+    assessed:assessed+' of 99',complete:complete+' of 99',
+    establishedPct:(er.pct!==null?er.pct+'%':'—'),
+    gapsCount:gaps.length,revenueRisk:totRisk>0?fmtRisk(totRisk):'—',
+    dimensionScores:DIMS.map(function(d,di){return d.code+' '+d.name+': '+sl(dimSCI(di));}).join('\n'),
+    topGaps:gaps.slice(0,8).map(function(g){return '• '+g.dim+' — '+g.name+': '+sl(g.score)+(capRisk(g.di,g.ci)>0?' [Risk: '+fmtRisk(capRisk(g.di,g.ci))+']':'');}).join('\n')||'None',
+    topStrengths:strengths.slice(0,5).map(function(g){return '• '+g.dim+' — '+g.name+': '+sl(g.score);}).join('\n')||'—',
+  };
+  toast('📧 Sending CEO Report email...','t-b',2000);
+  fetch('https://script.google.com/macros/s/AKfycbytchritgiBkQ3HFFV47kA46f6kqHvFfsbkGFuJpDTCiGV_96a6-krqPR_8ZoB7iVUsmg/exec',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(){ toast('✅ CEO Report emailed to sraj1971@gmail.com','t-g',5000); })
+    .catch(function(err){ toast('⚠️ Email error','t-a',4000); });
+}
+// ==============================================================
+
+function rSummary(){
+  return '<div style="padding:16px 20px 0">'
+    +'<button onclick="RT=\'\';gv(\'reps\')" style="background:#0f2040;border:1px solid #1e3a5f;border-radius:6px;color:#60a5fa;font-size:12px;font-weight:700;padding:6px 14px;cursor:pointer">&#8592; Back to Reports</button>'
+    +'</div>'
+    +'<div style="text-align:center;padding:30px 20px">'
+    +'<div style="font-size:40px;margin-bottom:14px">📑</div>'
+    +'<div style="font-size:18px;font-weight:800;color:#f1f5f9;margin-bottom:8px">Overall Summary Report</div>'
+    +'<div style="font-size:13px;color:#7890a8;margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6">'
+    +'Complete enterprise overview — all 11 dimensions, all capability scores, confirmed strengths, top gaps and a 90-day action plan.'
+    +'</div>'
+    +'<button onclick="doExp()" style="padding:13px 32px;background:linear-gradient(135deg,#059669,#0891b2);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(5,150,105,0.4)">'
+    +'📄 Generate & Download Summary Report'
+    +'</button>'
+    +'</div>';
+}
 function rExec(){
   var es=entSCI(), ecol=scol(es);
   var now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
@@ -1500,7 +1979,7 @@ function rExec(){
     return '<div class="ed" style="border-left-color:'+d.color+'">'
       +'<div class="edi"><div class="edc">'+d.code+'</div><div class="edn">'+d.name+'</div>'
       +'<div class="edb"><div class="edbf" style="width:'+pct+'%;background:'+col+'"></div></div></div>'
-      +'<div class="edv" style="color:'+col+'">'+sl(s)+'</div></div>';
+      +'<div class="edvs" style="color:'+col+'">'+sl(s)+'</div></div>';
   }).join('');
   var prioRows=prios.map(function(x,idx){
     var band=Math.min(4,Math.floor(avgM(x.di,x.ci)));
@@ -1700,16 +2179,299 @@ function resetDim(){
   DIMS[DI].caps.forEach(function(_,ci){ DIMS[DI].caps[ci].q.forEach(function(_,qi){ ST[DI][ci][qi]={m:0,e:0,d:0}; }); });
   rAV(document.getElementById('MC')); rSB(); toast('Dimension reset','t-g',2000);
 }
-function doExp(){ toast('Use browser Print (Ctrl+P → Save as PDF)','t-b',4000); }
+function doExp(){
+  // ── Gather all data ─────────────────────────────────────────
+  var es=entSCI(), sciCol=scol(es);
+  var now=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+  var company=(window.IK&&IK.company)?IK.company:'Enterprise Assessment';
+  var assessId=(window.IK&&IK.assessmentId)?IK.assessmentId:'—';
+  var industry=(window.IK&&IK.industry)?IK.industry:'—';
+  var revenue=(window.IK&&IK.revenue)?IK.revenue:'—';
+  var sciLabel=es<2?'Critical — Foundation Required':es<3?'Developing — Key Gaps Present':es<4?'Progressing — Building Momentum':es<4.5?'Well Managed — Strong Foundation':'World Class';
+  var sciDesc=es<2?'Significant gaps across critical capabilities. Immediate intervention required.':
+    es<3?'Some foundations in place but key capabilities remain underdeveloped.':
+    es<4?'A reasonable foundation is in place. Focused effort on the lower-scoring capabilities will accelerate readiness.':
+    es<4.5?'Strong enterprise capability. Sustain and extend best practices.':
+    'Industry-leading capability. Maintain and share best practices.';
 
-// ==============================================================
-// INIT
-// ==============================================================
+  // Evidence stats
+  var evYes=0,evNo=0,evTotal=0;
+  DIMS.forEach(function(_,di){ DIMS[di].caps.forEach(function(_,ci){
+    DIMS[di].caps[ci].q.forEach(function(_,qi){
+      var q=ST[di][ci][qi];
+      if(q&&q.yn!==null){ evTotal++; if(q.yn===true)evYes++; else evNo++; }
+    });
+  });});
+  var evPct=evTotal>0?Math.round((evYes/evTotal)*100):0;
 
-// ==============================================================
-// PASSWORD PROTECTION
-// ==============================================================
-var PW_HASH = 'b4c96e9d7e3f8a2b1c0d5e6f7a8b9c0d'; // placeholder, computed below
+  // Gaps & strengths
+  var gaps=[],strengths=[];
+  DIMS.forEach(function(d,di){
+    d.caps.forEach(function(c,ci){
+      var cs=capSCI(di,ci);
+      if(cs>0&&cs<2.5) gaps.push({score:cs,name:c.name,dim:d.code,color:d.color,di:di,ci:ci});
+      if(cs>=3.5) strengths.push({score:cs,name:c.name,dim:d.code,color:d.color});
+    });
+  });
+  gaps.sort(function(a,b){return a.score-b.score;});
+  strengths.sort(function(a,b){return b.score-a.score;});
+  var totRisk=entRisk();
+  var assessed=0,complete=0;
+  DIMS.forEach(function(_,di){ DIMS[di].caps.forEach(function(_,ci){ if(capSCI(di,ci)>0)assessed++; if(capStat(di,ci)==='✅')complete++; }); });
+
+  // ── BUILD SVG RADAR (11-dimension enterprise) ─────────────────
+  var cx=260,cy=260,maxR=200,n=DIMS.length;
+  var rings='';
+  for(var lv=1;lv<=5;lv++){
+    var r=(lv/5)*maxR;
+    var pts=DIMS.map(function(_,i){ var a=(i/n)*2*Math.PI-Math.PI/2; return (cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1); }).join(' ');
+    rings+='<polygon points="'+pts+'" fill="none" stroke="#d4c5a0" stroke-width="0.8" opacity="0.6"/>';
+    rings+='<text x="'+(cx+4)+'" y="'+(cy-r+4)+'" font-size="9" fill="#8b7355">'+lv+'</text>';
+  }
+  var axes='',labels='';
+  DIMS.forEach(function(d,i){
+    var a=(i/n)*2*Math.PI-Math.PI/2;
+    var xe=(cx+maxR*Math.cos(a)).toFixed(1),ye=(cy+maxR*Math.sin(a)).toFixed(1);
+    axes+='<line x1="'+cx+'" y1="'+cy+'" x2="'+xe+'" y2="'+ye+'" stroke="#d4c5a0" stroke-width="0.8" opacity="0.5"/>';
+    var lr=maxR+28,lx=(cx+lr*Math.cos(a)).toFixed(1),ly=(cy+lr*Math.sin(a)).toFixed(1);
+    var anch=Math.cos(a)>0.1?'start':Math.cos(a)<-0.1?'end':'middle';
+    var ds=dimSCI(i);
+    labels+='<text x="'+lx+'" y="'+parseFloat(ly)+'" font-size="9.5" font-weight="700" fill="#1e2d4a" text-anchor="'+anch+'">'+d.code+'</text>';
+    labels+='<text x="'+lx+'" y="'+(parseFloat(ly)+12)+'" font-size="9" fill="'+(ds<2?'#c0392b':ds<3?'#e67e22':ds<4?'#8b7355':'#1e5c3a')+'" text-anchor="'+anch+'" font-weight="700">'+sl(ds)+'</text>';
+  });
+  // Baseline 4.0
+  var basePts=DIMS.map(function(_,i){ var a=(i/n)*2*Math.PI-Math.PI/2,r=(4/5)*maxR; return (cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1); }).join(' ');
+  // Score polygon
+  var scorePts=DIMS.map(function(_,i){ var a=(i/n)*2*Math.PI-Math.PI/2,ds=dimSCI(i),r=(ds/5)*maxR; return (cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1); }).join(' ');
+  var dots=DIMS.map(function(_,i){ var a=(i/n)*2*Math.PI-Math.PI/2,ds=dimSCI(i),r=(ds/5)*maxR,col=ds<2?'#c0392b':ds<3?'#e67e22':ds<4?'#8b7355':'#1e5c3a'; return '<circle cx="'+(cx+r*Math.cos(a)).toFixed(1)+'" cy="'+(cy+r*Math.sin(a)).toFixed(1)+'" r="5" fill="'+col+'" stroke="#fff" stroke-width="1.5"/>'; }).join('');
+
+  var radarSVG='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" width="520" height="520">'
+    +'<rect width="520" height="520" fill="#fafaf7"/>'
+    +rings+axes
+    +'<polygon points="'+basePts+'" fill="rgba(180,150,80,0.08)" stroke="#c9a84c" stroke-width="1.5" stroke-dasharray="6,3"/>'
+    +'<polygon points="'+scorePts+'" fill="rgba(30,45,74,0.15)" stroke="#1e2d4a" stroke-width="2.5"/>'
+    +dots+labels
+    +'<text x="260" y="510" font-size="9" fill="#8b7355" text-anchor="middle">&#9644; Current Score &nbsp;&nbsp; &#x2508; Best-in-Class Target (4.0)</text>'
+    +'</svg>';
+
+  // ── PIE CHART SVG (Evidence quality) ─────────────────────────
+  var pieSVG='';
+  if(evTotal>0){
+    var angle=evPct/100*2*Math.PI;
+    var pcx=80,pcy=80,pr=65;
+    var x1=pcx+pr*Math.sin(angle),y1=pcy-pr*Math.cos(angle);
+    var large=evPct>50?1:0;
+    pieSVG='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 190" width="160" height="190">'
+      +(evPct===100
+        ?'<circle cx="'+pcx+'" cy="'+pcy+'" r="'+pr+'" fill="#1e2d4a"/>'
+        :'<path d="M '+pcx+' '+pcy+' L '+pcx+' '+(pcy-pr)+' A '+pr+' '+pr+' 0 '+large+' 1 '+x1.toFixed(1)+' '+y1.toFixed(1)+' Z" fill="#1e2d4a"/>'
+         +'<path d="M '+pcx+' '+pcy+' L '+x1.toFixed(1)+' '+y1.toFixed(1)+' A '+pr+' '+pr+' 0 '+(1-large)+' 1 '+pcx+' '+(pcy-pr)+' Z" fill="#c9a84c"/>')
+      +'<text x="'+pcx+'" y="'+pcy+'" font-size="11" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">'+evPct+'%</text>'
+      +'<text x="'+pcx+'" y="'+(pcy+4+12)+'" font-size="8" fill="#fff" text-anchor="middle">Available</text>'
+      +'<rect x="12" y="152" width="10" height="10" fill="#1e2d4a"/>'
+      +'<text x="26" y="161" font-size="9" fill="#333">Available: '+evYes+' ('+evPct+'%)</text>'
+      +'<rect x="12" y="168" width="10" height="10" fill="#c9a84c"/>'
+      +'<text x="26" y="177" font-size="9" fill="#333">Not Available: '+evNo+' ('+(100-evPct)+'%)</text>'
+      +'</svg>';
+  }
+
+  // ── DIMENSION SCORECARD ROWS ──────────────────────────────────
+  var dimRows=DIMS.map(function(d,di){
+    var ds=dimSCI(di),er2=dimEstRate(di),dr=dimRisk(di);
+    var col=ds<2?'#c0392b':ds<3?'#e67e22':ds<4?'#8b7355':'#1e5c3a';
+    var confLvl=er2.pct!==null&&er2.pct>=75?'High ('+er2.pct+'%)':er2.pct!==null&&er2.pct>=50?'Medium ('+er2.pct+'%)':'Low '+(er2.pct!==null?'('+er2.pct+'%)':'');
+    var confCol=er2.pct!==null&&er2.pct>=75?'#1e5c3a':er2.pct!==null&&er2.pct>=50?'#e67e22':'#c0392b';
+    return '<tr>'
+      +'<td style="padding:8px 12px;font-weight:700;color:'+d.color+';font-size:12px">'+d.code+'</td>'
+      +'<td style="padding:8px 12px;font-size:12px;color:#1e2d4a">'+d.name+'</td>'
+      +'<td style="padding:8px 12px;text-align:center;font-weight:800;font-size:14px;color:'+col+'">'+sl(ds)+'</td>'
+      +'<td style="padding:8px 12px;text-align:center"><span style="background:'+confCol+'22;color:'+confCol+';font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px">'+confLvl+'</span></td>'
+      +'<td style="padding:8px 12px;text-align:center;font-size:11px;font-weight:700;color:#c0392b">'+(dr>0?fmtRisk(dr):'—')+'</td>'
+    +'</tr>';
+  }).join('');
+
+  // ── GAP ROWS ─────────────────────────────────────────────────
+  var gapRows=gaps.slice(0,10).map(function(g){
+    var rk=capRisk(g.di,g.ci);
+    return '<tr style="border-bottom:1px solid #f0ebe0">'
+      +'<td style="padding:7px 12px;font-weight:700;font-size:11px;color:'+g.color+'">'+g.dim+'</td>'
+      +'<td style="padding:7px 12px;font-size:11px;color:#1e2d4a">'+g.name+'</td>'
+      +'<td style="padding:7px 12px;text-align:center;font-weight:800;font-size:12px;color:#c0392b">'+sl(g.score)+'</td>'
+      +'<td style="padding:7px 12px;text-align:center;font-size:11px;font-weight:700;color:#c0392b">'+(rk>0?fmtRisk(rk):'—')+'</td>'
+    +'</tr>';
+  }).join('') || '<tr><td colspan="4" style="padding:12px;color:#8b7355;text-align:center;font-size:11px">No significant gaps — strong enterprise capability</td></tr>';
+
+  // ── STRENGTH BADGES ───────────────────────────────────────────
+  var strBadges=strengths.slice(0,6).map(function(g){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:7px 12px;background:#f0f8f0;border-left:3px solid #1e5c3a;border-radius:4px;margin-bottom:5px">'
+      +'<span style="color:#1e5c3a;font-weight:800;font-size:14px">✓</span>'
+      +'<span style="font-weight:700;font-size:11px;color:'+g.color+'">'+g.dim+'</span>'
+      +'<span style="font-size:11px;color:#1e2d4a">'+g.name+'</span>'
+      +'<span style="margin-left:auto;font-weight:800;font-size:12px;color:#1e5c3a">'+sl(g.score)+'</span>'
+    +'</div>';
+  }).join('') || '<p style="color:#8b7355;font-size:11px;font-style:italic">Complete more of the assessment to confirm strengths</p>';
+
+  // ── NEXT STEPS ────────────────────────────────────────────────
+  var nextSteps=[
+    'Share this report with the leadership team as a baseline for the enterprise capability assessment.',
+    'Focus immediate improvement effort on the '+(gaps.length>0?gaps.length+' identified capability gaps':'lowest-scoring capabilities')+', starting with those scoring below 2.0.',
+    'Contact Mirai Axis Consulting to discuss a structured capability improvement roadmap.',
+    'Protect and reinforce the '+strengths.length+' confirmed strengths so they do not slip during the improvement programme.',
+    'Schedule a quarterly reassessment to track SCI improvement and ensure the roadmap is on track.'
+  ];
+
+  // ── BUILD FULL HTML REPORT ────────────────────────────────────
+  var R='<!DOCTYPE html><html><head><meta charset="UTF-8">'
+    +'<title>ScaleOS Enterprise Report — '+company+' — '+now+'</title>'
+    +'<style>'
+    +'*{box-sizing:border-box;margin:0;padding:0}'
+    +'body{font-family:\'Segoe UI\',Arial,sans-serif;background:#fafaf7;color:#1e2d4a;font-size:13px}'
+    +'@media print{body{background:#fff} .pb{page-break-before:always} .npb{page-break-inside:avoid}}'
+    +'@page{margin:15mm 14mm;size:A4}'
+    +'.cover{background:linear-gradient(135deg,#1e2d4a 0%,#2c3e6e 100%);padding:28px 32px;border-bottom:4px solid #c9a84c}'
+    +'.sec{background:#fff;border-radius:8px;padding:20px 24px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}'
+    +'.sec-title{font-size:14px;font-weight:800;color:#1e2d4a;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #c9a84c}'
+    +'table{width:100%;border-collapse:collapse}'
+    +'th{background:#1e2d4a;color:#fff;padding:8px 12px;font-size:10px;font-weight:700;text-align:left;letter-spacing:0.5px}'
+    +'tr:nth-child(even){background:#faf8f3}'
+    +'.kbar{display:flex;gap:0;margin-bottom:14px}'
+    +'.kpi{flex:1;padding:14px 10px;text-align:center;background:#fff;border-right:1px solid #e8e0d0;border-radius:0}'
+    +'.kpi:first-child{border-radius:8px 0 0 8px}'
+    +'.kpi:last-child{border-right:none;border-radius:0 8px 8px 0}'
+    +'.kv{font-size:24px;font-weight:900;margin-bottom:2px}'
+    +'.kl{font-size:9px;color:#8b7355;text-transform:uppercase;letter-spacing:0.5px}'
+    +'.risk-box{background:#fdf6ec;border:1px solid #e8c98a;border-left:4px solid #c9a84c;border-radius:6px;padding:12px 16px}'
+    +'.conf-box{background:#e8f4ec;border:1px solid #a8d4b0;border-radius:6px;padding:10px 14px;text-align:center;margin-top:10px}'
+    +'</style></head><body>'
+
+    // ── COVER
+    +'<div class="cover">'
+    +'<div style="font-size:10px;color:#c9a84c;font-weight:700;letter-spacing:2px;margin-bottom:6px">MIRAI AXIS SCALEOS™</div>'
+    +'<div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:4px">Enterprise Capability Assessment</div>'
+    +'<div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:10px">Executive Report — Confidential</div>'
+    +'<div style="font-size:11px;color:#a0b0c8">'+now+' &nbsp;·&nbsp; '+company+' &nbsp;·&nbsp; '+assessId+' &nbsp;·&nbsp; '+industry+'</div>'
+    +'</div>'
+
+    // ── KPI BAR
+    +'<div class="kbar" style="margin-top:14px">'
+    +'<div class="kpi"><div class="kv" style="color:'+(es<2?'#c0392b':es<3?'#e67e22':es<4?'#8b7355':'#1e5c3a')+'">'+sl(es)+' / 5.0</div><div class="kl">Enterprise SCI</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#2c3e6e">'+assessed+'</div><div class="kl">Caps Assessed</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#1e5c3a">'+complete+'</div><div class="kl">Fully Scored</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#c9a84c">'+(entEstRate().pct!==null?entEstRate().pct+'%':'—')+'</div><div class="kl">Established %</div></div>'
+    +'<div class="kpi"><div class="kv" style="color:#c0392b">'+gaps.length+'</div><div class="kl">Gaps Found</div></div>'
+    +(totRisk>0?'<div class="kpi"><div class="kv" style="color:#c0392b;font-size:16px">'+fmtRisk(totRisk)+'</div><div class="kl">Revenue at Risk</div></div>':'')
+    +'</div>'
+
+    // ── SCI STATEMENT
+    +'<div class="sec npb">'
+    +'<div style="text-align:center;padding:10px 0 16px">'
+    +'<div style="font-size:52px;font-weight:900;color:'+(es<2?'#c0392b':es<3?'#e67e22':es<4?'#8b7355':'#1e5c3a')+'">'+sl(es)+' / 5.0</div>'
+    +'<div style="font-size:18px;font-weight:700;color:#c9a84c;margin:4px 0">'+sciLabel+'</div>'
+    +'<div style="font-size:13px;color:#8b7355;max-width:540px;margin:0 auto;line-height:1.6">'+sciDesc+'</div>'
+    +'</div>'
+    +'</div>'
+
+    // ── RADAR CHART
+    +'<div class="sec npb">'
+    +'<div class="sec-title">Enterprise Capability Radar — All 11 Dimensions</div>'
+    +'<div style="display:flex;align-items:flex-start;gap:24px">'
+    +'<div>'+radarSVG+'</div>'
+    +'<div style="flex:1;padding-top:12px">'
+    +'<div style="font-size:12px;font-weight:700;color:#1e2d4a;margin-bottom:10px">Reading the Radar</div>'
+    +'<div style="font-size:11px;color:#8b7355;line-height:1.6;margin-bottom:14px">The solid polygon shows your current enterprise capability. The dashed gold line is the Best-in-Class target of 4.0. The gap between the two lines identifies where focused improvement will deliver maximum impact.</div>'
+    +DIMS.map(function(d,di){
+      var ds=dimSCI(di),col=ds<2?'#c0392b':ds<3?'#e67e22':ds<4?'#8b7355':'#1e5c3a';
+      var pct=Math.round((ds/5)*100);
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
+        +'<span style="font-size:10px;font-weight:700;color:'+d.color+';min-width:30px">'+d.code+'</span>'
+        +'<div style="flex:1;height:6px;background:#ebe5d5;border-radius:3px"><div style="width:'+pct+'%;height:6px;background:'+col+';border-radius:3px"></div></div>'
+        +'<span style="font-size:10px;font-weight:800;color:'+col+';min-width:28px">'+sl(ds)+'</span>'
+      +'</div>';
+    }).join('')
+    +'</div></div>'
+    +'</div>'
+
+    // ── REVENUE AT RISK
+    +(totRisk>0?'<div class="sec npb risk-box">'
+    +'<div style="font-size:14px;font-weight:800;color:#8b4513;margin-bottom:6px">⚠️ Estimated Revenue at Risk: '+fmtRisk(totRisk)+'</div>'
+    +'<div style="font-size:12px;color:#92400e;font-style:italic;line-height:1.6">This is a benchmark-based directional estimate using an EBITDA-impact model — not a measured loss. The figure represents the estimated annual EBITDA exposure from capability gaps below the 4.0 target benchmark, weighted by dimension criticality and organisational interdependency. It is capped at 12% of revenue for boardroom credibility. Intended to show the relative financial scale of the capability opportunity — not a precise, audited number.</div>'
+    +'</div>':'')
+
+    // ── PAGE 2
+    +'<div class="pb"></div>'
+
+    // ── DIMENSION SCORECARD
+    +'<div class="sec">'
+    +'<div class="sec-title">Dimension Scorecard</div>'
+    +'<table><thead><tr><th>Code</th><th>Dimension</th><th style="text-align:center">Score</th><th style="text-align:center">Evidence Confidence</th><th style="text-align:center">Revenue Risk</th></tr></thead>'
+    +'<tbody>'+dimRows+'</tbody></table>'
+    +'</div>'
+
+    // ── EVIDENCE QUALITY
+    +'<div class="sec npb">'
+    +'<div class="sec-title">Evidence Quality Summary</div>'
+    +'<div style="display:flex;align-items:flex-start;gap:32px">'
+    +'<div>'+pieSVG+'</div>'
+    +'<div style="flex:1;padding-top:8px">'
+    +'<div style="font-size:12px;color:#8b7355;line-height:1.7;margin-bottom:12px">Evidence confidence measures how reliably each score is backed by verifiable artifacts, records, and data. A high evidence score means the ratings reflect real, documented performance — not perception.</div>'
+    +'<div class="conf-box">'
+    +'<div style="font-size:13px;font-weight:800;color:#1e5c3a">Confidence: '+(evPct>=75?'High ('+evPct+'% evidence-backed)':evPct>=50?'Medium ('+evPct+'% evidence-backed)':'Low ('+evPct+'% evidence-backed)')+'</div>'
+    +'<div style="font-size:11px;color:#8b7355;margin-top:4px">'+(evPct>=75?'These scores are well-supported by verifiable evidence.':evPct>=50?'Evidence is building. Continue gathering supporting documentation.':'More evidence gathering required to confirm these scores.')+'</div>'
+    +'</div>'
+    +'<div style="margin-top:14px;font-size:11px;color:#8b7355">Based on '+evTotal+' of '+(DIMS.reduce(function(a,d){return a+d.caps.reduce(function(b,c){return b+c.q.length;},0);},0))+' total assessment questions answered.</div>'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+
+    // ── TOP GAPS
+    +'<div class="pb"></div>'
+    +'<div class="sec">'
+    +'<div class="sec-title">🔴 Top Capability Gaps — Priority Improvement Areas</div>'
+    +'<table><thead><tr><th>Dimension</th><th>Capability</th><th style="text-align:center">Score</th><th style="text-align:center">Est. Revenue Risk</th></tr></thead>'
+    +'<tbody>'+gapRows+'</tbody></table>'
+    +'</div>'
+
+    // ── STRENGTHS
+    +'<div class="sec npb">'
+    +'<div class="sec-title">✅ Confirmed Strengths — Protect & Leverage</div>'
+    +'<div>'+strBadges+'</div>'
+    +'</div>'
+
+    // ── NEXT STEPS
+    +'<div class="sec npb">'
+    +'<div class="sec-title">Recommended Next Steps</div>'
+    +'<ol style="padding-left:18px">'+nextSteps.map(function(s,i){ return '<li style="font-size:12px;color:#1e2d4a;line-height:1.6;margin-bottom:6px">'+s+'</li>'; }).join('')+'</ol>'
+    +'</div>'
+
+    +'<div style="text-align:center;padding:10px;font-size:9px;color:#8b7355">ScaleOS™ Enterprise Capability Assessment &nbsp;·&nbsp; Mirai Axis Consulting LLP &nbsp;·&nbsp; Confidential &nbsp;·&nbsp; '+now+'</div>'
+    +'</body></html>';
+
+  // ── OPEN PRINT WINDOW ──────────────────────────────────────
+  var win=window.open('','_blank','width=960,height=800');
+  win.document.write(R);
+  win.document.close();
+  win.focus();
+  setTimeout(function(){ win.print(); },1000);
+
+  // ── SEND EMAIL ─────────────────────────────────────────────
+  var GAS='https://script.google.com/macros/s/AKfycbytchritgiBkQ3HFFV47kA46f6kqHvFfsbkGFuJpDTCiGV_96a6-krqPR_8ZoB7iVUsmg/exec';
+  var sciLabel2=es<2?'Below Target':es<3?'Developing':es<4?'Operational':es<4.5?'Well Managed':'World Class';
+  var payload={
+    date:now, company:company, assessId:assessId, industry:industry,
+    enterpriseSCI:sl(es), sciLabel:sciLabel2,
+    assessed:assessed+' of 99', complete:complete+' of 99',
+    establishedPct:(entEstRate().pct!==null?entEstRate().pct+'%':'—'),
+    gapsCount:gaps.length, revenueRisk:totRisk>0?fmtRisk(totRisk):'—',
+    evidencePct:evPct+'%',
+    dimensionScores:DIMS.map(function(d,di){return d.code+' '+d.name+': '+sl(dimSCI(di));}).join('\n'),
+    topGaps:gaps.slice(0,8).map(function(g){return '• '+g.dim+' — '+g.name+': '+sl(g.score)+(capRisk(g.di,g.ci)>0?' [Risk: '+fmtRisk(capRisk(g.di,g.ci))+']':'');}).join('\n')||'None identified',
+    topStrengths:strengths.slice(0,5).map(function(g){return '• '+g.dim+' — '+g.name+': '+sl(g.score);}).join('\n')||'Complete more assessment',
+  };
+  toast('📧 Sending report email...','t-b',2000);
+  fetch(GAS,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(){ toast('✅ Report emailed to sraj1971@gmail.com','t-g',5000); })
+    .catch(function(err){ toast('⚠️ Email error — check console','t-a',4000); console.error(err); });
+}
 
 function djb2(str){
   var h=5381;
@@ -1873,11 +2635,20 @@ window.addEventListener('load', function(){
 
 
 // ==============================================================
-// REVENUE AT RISK ENGINE
+
 // ==============================================================
+// REVENUE AT RISK ENGINE — Holistic Enterprise Model
+// Methodology:
+//   1. Revenue midpoint from intake band
+//   2. Per dimension: EBITDA impact % × gap below target 4.0
+//   3. Interdependency multiplier if multiple linked dims are weak
+//   4. Hard cap at 12% of revenue (realistic boardroom ceiling)
+//   5. capRisk is a proportional share for display only
+// ==============================================================
+
 function getRevMid(){
   var rev=(window.IK&&IK.revenue)?IK.revenue:'';
-  if(rev.indexOf('Below')>=0||rev.indexOf('10 Crore')>=0&&rev.indexOf('50')<0) return 5;
+  if(rev.indexOf('Below')>=0) return 5;
   if(rev.indexOf('10')>=0&&rev.indexOf('50')>=0) return 30;
   if(rev.indexOf('50')>=0&&rev.indexOf('100')>=0) return 75;
   if(rev.indexOf('100')>=0&&rev.indexOf('250')>=0) return 175;
@@ -1886,27 +2657,107 @@ function getRevMid(){
   if(rev.indexOf('1,000')>=0) return 3000;
   return 200;
 }
-function dimRiskWt(di){
-  return [0.20,0.15,0.18,0.12,0.22,0.16,0.14,0.10,0.13,0.12,0.10][di]||0.12;
+
+// EBITDA impact % per dimension — how much EBITDA margin
+// is at risk if this dimension is significantly below target.
+// Based on industry benchmarks for mid-market manufacturers.
+// D5 Operations and D6 Supply Chain have highest direct impact.
+function dimEbitdaImpact(di){
+  // Max EBITDA % at risk per dimension if score = 1.0
+  return [0.022, 0.018, 0.020, 0.012, 0.030, 0.025,
+          0.018, 0.014, 0.015, 0.014, 0.016][di] || 0.015;
 }
+
+// How far a dimension is below the target benchmark of 4.0
+// Returns 0 if at or above target, max 1.0 if at score 1.0
+function dimGapRatio(di){
+  var ds=dimSCI(di);
+  if(ds<=0) return 0;          // not assessed — no risk assigned
+  if(ds>=4.0) return 0;        // at or above target — no gap
+  return (4.0 - ds) / 3.0;    // normalised 0-1 scale
+}
+
+// Interdependency multiplier:
+// If 3+ linked operational dimensions are all weak,
+// the combined effect is greater than individual parts.
+// Operational cluster: D5, D6, D7, D8
+// Strategic cluster:   D1, D3, D10
+// People cluster:      D2, D9, D11
+function interdepMultiplier(){
+  var opsWeak=0, strWeak=0, pepWeak=0;
+  [[4,5,6,7],[0,2,9],[1,8,10]].forEach(function(cluster,ci){
+    var weak=cluster.filter(function(di){ return dimSCI(di)>0 && dimSCI(di)<3.0; }).length;
+    if(ci===0) opsWeak=weak;
+    if(ci===1) strWeak=weak;
+    if(ci===2) pepWeak=weak;
+  });
+  // Each cluster fully weak adds 8% multiplier
+  var mult=1.0;
+  if(opsWeak>=3) mult+=0.08;
+  if(strWeak>=2) mult+=0.06;
+  if(pepWeak>=2) mult+=0.05;
+  return Math.min(mult, 1.20); // cap at 20% uplift
+}
+
+// Enterprise Revenue at Risk — holistic model
+function entRisk(){
+  var rev=getRevMid();
+  var totalRisk=0;
+  DIMS.forEach(function(_,di){
+    var gr=dimGapRatio(di);
+    if(gr<=0) return;
+    var ebi=dimEbitdaImpact(di);
+    // Risk = Revenue × EBITDA impact % × gap ratio
+    totalRisk += rev * ebi * gr;
+  });
+  // Apply interdependency multiplier
+  totalRisk *= interdepMultiplier();
+  // Hard cap at 12% of revenue — boardroom credibility ceiling
+  var cap = rev * 0.12;
+  return Math.min(totalRisk, cap);
+}
+
+// Dimension risk = proportional share of enterprise risk
+function dimRisk(di){
+  var gr=dimGapRatio(di);
+  if(gr<=0) return 0;
+  var rev=getRevMid();
+  var ebi=dimEbitdaImpact(di);
+  // Raw dim risk before multiplier and cap
+  var raw=rev*ebi*gr;
+  // Scale proportionally to total enterprise risk
+  var ent=entRisk();
+  var rawTotal=0;
+  DIMS.forEach(function(_,i){
+    var g=dimGapRatio(i); if(g<=0) return;
+    rawTotal+=getRevMid()*dimEbitdaImpact(i)*g;
+  });
+  if(rawTotal<=0) return 0;
+  return ent*(raw/rawTotal);
+}
+
+// Capability risk = proportional share of its dimension risk
 function capRisk(di,ci){
   var cs=capSCI(di,ci); if(cs<=0) return 0;
-  var gap=Math.max(0,getBL(di,ci)-cs); if(gap<=0) return 0;
-  return getRevMid()*dimRiskWt(di)*(gap/5)/DIMS[di].caps.length;
+  var bl=getBL(di,ci);
+  var gap=Math.max(0,bl-cs); if(gap<=0) return 0;
+  var dr=dimRisk(di); if(dr<=0) return 0;
+  // Weight by this cap's gap vs total dim gap
+  var totalGap=0;
+  DIMS[di].caps.forEach(function(_,i){
+    var s=capSCI(di,i); if(s<=0) return;
+    totalGap+=Math.max(0,getBL(di,i)-s);
+  });
+  if(totalGap<=0) return 0;
+  return dr*(gap/totalGap);
 }
-function dimRisk(di){
-  var t=0; DIMS[di].caps.forEach(function(_,ci){t+=capRisk(di,ci);}); return t;
-}
-function entRisk(){
-  var t=0; DIMS.forEach(function(_,di){t+=dimRisk(di);}); return t;
-}
+
 function fmtRisk(cr){
-  if(cr<=0) return '';
+  if(!cr||cr<=0) return '';
   if(cr<1) return '₹'+(cr*100).toFixed(0)+' Lakh';
-  return '₹'+cr.toFixed(2)+' Crore';
+  return '₹'+cr.toFixed(1)+' Crore';
 }
 // ==============================================================
-
 
 // ==============================================================
 // AUTO-SAVE ENGINE (localStorage)
@@ -1962,26 +2813,490 @@ function restoreIntakeFields(){
 
 // ==============================================================
 
+
+// ==============================================================
+// DIMENSION NAVIGATION — Prev / Next
+// ==============================================================
+function prevDim(){
+  if(DI > 0){
+    DI--;
+    V='assess'; AV='assess';
+    rSB(); gv('assess');
+    updNavBtns();
+  }
+}
+function nextDim(){
+  if(DI < DIMS.length-1){
+    DI++;
+    V='assess'; AV='assess';
+    rSB(); gv('assess');
+    updNavBtns();
+  }
+}
+function updNavBtns(){
+  var bp=document.getElementById('btn-prev');
+  var bn=document.getElementById('btn-next');
+  if(bp) bp.disabled = (DI===0);
+  if(bn) bn.disabled = (DI===DIMS.length-1);
+  // Update labels with dim code
+  if(bp && DI>0)             bp.textContent = '◀ '+DIMS[DI-1].code;
+  if(bn && DI<DIMS.length-1) bn.textContent = DIMS[DI+1].code+' ▶';
+  if(bp && DI===0)            bp.textContent = '◀ Prev';
+  if(bn && DI===DIMS.length-1) bn.textContent = 'Next ▶';
+}
+// ==============================================================
+
 initBL();
 initST();
+
+// ── TRIAL INTAKE DATA ──────────────────────────────────────────
+window.IK = window.IK || {};
+IK.company     = 'Advik Hitech Pvt Ltd';
+IK.assessmentId= 'MAC-2026-0001';
+IK.industry    = 'Automotive Components';
+IK.revenue     = '₹500 Crore – ₹1,000 Crore';
+IK.location    = 'Pune';
+IK.date        = '13 August 2026';
+// ──────────────────────────────────────────────────────────────
+
+// ── TRIAL DATA: Prefilled scores for all 396 questions ──
+(function applyTrialScores(){
+  // D1 — Leadership, Strategy & Governance
+  ST[0][0][0]={yn:true,m:2,e:2,d:2};
+  ST[0][0][1]={yn:true,m:4,e:2,d:2};
+  ST[0][0][2]={yn:true,m:2,e:2,d:2};
+  ST[0][0][3]={yn:true,m:4,e:4,d:2};
+  ST[0][1][0]={yn:true,m:4,e:4,d:4};
+  ST[0][1][1]={yn:true,m:2,e:2,d:2};
+  ST[0][1][2]={yn:true,m:2,e:2,d:2};
+  ST[0][1][3]={yn:true,m:2,e:2,d:2};
+  ST[0][2][0]={yn:true,m:3,e:2,d:2};
+  ST[0][2][1]={yn:true,m:4,e:3,d:2};
+  ST[0][2][2]={yn:true,m:4,e:2,d:2};
+  ST[0][2][3]={yn:true,m:3,e:3,d:2};
+  ST[0][3][0]={yn:true,m:2,e:2,d:2};
+  ST[0][3][1]={yn:false,m:1,e:1,d:1};
+  ST[0][3][2]={yn:true,m:2,e:2,d:2};
+  ST[0][3][3]={yn:true,m:3,e:2,d:2};
+  ST[0][4][0]={yn:true,m:4,e:3,d:2};
+  ST[0][4][1]={yn:true,m:2,e:2,d:2};
+  ST[0][4][2]={yn:true,m:3,e:2,d:2};
+  ST[0][4][3]={yn:true,m:2,e:2,d:2};
+  ST[0][5][0]={yn:true,m:3,e:3,d:2};
+  ST[0][5][1]={yn:true,m:4,e:4,d:3};
+  ST[0][5][2]={yn:true,m:3,e:3,d:3};
+  ST[0][5][3]={yn:true,m:2,e:2,d:2};
+  ST[0][6][0]={yn:true,m:3,e:3,d:3};
+  ST[0][6][1]={yn:true,m:2,e:2,d:2};
+  ST[0][6][2]={yn:true,m:2,e:2,d:2};
+  ST[0][6][3]={yn:true,m:3,e:2,d:2};
+  ST[0][7][0]={yn:true,m:3,e:3,d:2};
+  ST[0][7][1]={yn:true,m:2,e:2,d:2};
+  ST[0][7][2]={yn:true,m:3,e:2,d:2};
+  ST[0][7][3]={yn:true,m:4,e:4,d:3};
+  ST[0][8][0]={yn:false,m:1,e:1,d:1};
+  ST[0][8][1]={yn:true,m:4,e:2,d:2};
+  ST[0][8][2]={yn:true,m:4,e:4,d:2};
+  ST[0][8][3]={yn:true,m:2,e:2,d:2};
+  // D2 — Organisation, People & Culture
+  ST[1][0][0]={yn:true,m:2,e:2,d:2};
+  ST[1][0][1]={yn:true,m:2,e:2,d:2};
+  ST[1][0][2]={yn:true,m:2,e:2,d:2};
+  ST[1][0][3]={yn:true,m:4,e:2,d:2};
+  ST[1][1][0]={yn:true,m:4,e:3,d:2};
+  ST[1][1][1]={yn:false,m:1,e:1,d:1};
+  ST[1][1][2]={yn:true,m:4,e:2,d:2};
+  ST[1][1][3]={yn:true,m:4,e:3,d:3};
+  ST[1][2][0]={yn:false,m:1,e:1,d:1};
+  ST[1][2][1]={yn:true,m:2,e:2,d:2};
+  ST[1][2][2]={yn:true,m:4,e:2,d:2};
+  ST[1][2][3]={yn:true,m:4,e:2,d:2};
+  ST[1][3][0]={yn:true,m:2,e:2,d:2};
+  ST[1][3][1]={yn:true,m:3,e:3,d:2};
+  ST[1][3][2]={yn:true,m:4,e:3,d:2};
+  ST[1][3][3]={yn:true,m:3,e:2,d:2};
+  ST[1][4][0]={yn:true,m:3,e:3,d:3};
+  ST[1][4][1]={yn:true,m:4,e:2,d:2};
+  ST[1][4][2]={yn:true,m:4,e:3,d:2};
+  ST[1][4][3]={yn:true,m:2,e:2,d:2};
+  ST[1][5][0]={yn:true,m:3,e:3,d:2};
+  ST[1][5][1]={yn:false,m:1,e:1,d:1};
+  ST[1][5][2]={yn:true,m:4,e:2,d:2};
+  ST[1][5][3]={yn:true,m:4,e:2,d:2};
+  ST[1][6][0]={yn:false,m:1,e:1,d:1};
+  ST[1][6][1]={yn:false,m:1,e:1,d:1};
+  ST[1][6][2]={yn:true,m:3,e:3,d:2};
+  ST[1][6][3]={yn:false,m:1,e:1,d:1};
+  ST[1][7][0]={yn:false,m:1,e:1,d:1};
+  ST[1][7][1]={yn:true,m:2,e:2,d:2};
+  ST[1][7][2]={yn:false,m:1,e:1,d:1};
+  ST[1][7][3]={yn:true,m:3,e:3,d:3};
+  ST[1][8][0]={yn:true,m:3,e:2,d:2};
+  ST[1][8][1]={yn:true,m:4,e:2,d:2};
+  ST[1][8][2]={yn:true,m:4,e:3,d:2};
+  ST[1][8][3]={yn:true,m:4,e:2,d:2};
+  // D3 — Enterprise Financial Management & Performance
+  ST[2][0][0]={yn:true,m:3,e:2,d:2};
+  ST[2][0][1]={yn:true,m:5,e:2,d:2};
+  ST[2][0][2]={yn:true,m:4,e:4,d:4};
+  ST[2][0][3]={yn:true,m:4,e:3,d:2};
+  ST[2][1][0]={yn:true,m:4,e:2,d:2};
+  ST[2][1][1]={yn:true,m:5,e:4,d:3};
+  ST[2][1][2]={yn:true,m:3,e:2,d:2};
+  ST[2][1][3]={yn:true,m:5,e:2,d:2};
+  ST[2][2][0]={yn:true,m:5,e:3,d:2};
+  ST[2][2][1]={yn:false,m:1,e:1,d:1};
+  ST[2][2][2]={yn:true,m:3,e:3,d:3};
+  ST[2][2][3]={yn:true,m:5,e:4,d:3};
+  ST[2][3][0]={yn:true,m:5,e:4,d:2};
+  ST[2][3][1]={yn:true,m:5,e:3,d:2};
+  ST[2][3][2]={yn:false,m:1,e:1,d:1};
+  ST[2][3][3]={yn:true,m:3,e:2,d:2};
+  ST[2][4][0]={yn:true,m:5,e:2,d:2};
+  ST[2][4][1]={yn:true,m:5,e:3,d:3};
+  ST[2][4][2]={yn:true,m:3,e:2,d:2};
+  ST[2][4][3]={yn:true,m:3,e:2,d:2};
+  ST[2][5][0]={yn:true,m:5,e:3,d:2};
+  ST[2][5][1]={yn:true,m:5,e:4,d:3};
+  ST[2][5][2]={yn:true,m:3,e:2,d:2};
+  ST[2][5][3]={yn:true,m:4,e:4,d:4};
+  ST[2][6][0]={yn:true,m:3,e:2,d:2};
+  ST[2][6][1]={yn:true,m:3,e:3,d:2};
+  ST[2][6][2]={yn:true,m:5,e:2,d:2};
+  ST[2][6][3]={yn:true,m:4,e:4,d:4};
+  ST[2][7][0]={yn:true,m:3,e:2,d:2};
+  ST[2][7][1]={yn:true,m:3,e:2,d:2};
+  ST[2][7][2]={yn:true,m:4,e:4,d:4};
+  ST[2][7][3]={yn:true,m:4,e:2,d:2};
+  ST[2][8][0]={yn:true,m:3,e:3,d:2};
+  ST[2][8][1]={yn:true,m:4,e:3,d:3};
+  ST[2][8][2]={yn:true,m:3,e:2,d:2};
+  ST[2][8][3]={yn:true,m:4,e:3,d:3};
+  // D4 — Innovation, Product Development & Technology
+  ST[3][0][0]={yn:false,m:1,e:1,d:1};
+  ST[3][0][1]={yn:false,m:1,e:1,d:1};
+  ST[3][0][2]={yn:true,m:3,e:2,d:2};
+  ST[3][0][3]={yn:false,m:1,e:1,d:1};
+  ST[3][1][0]={yn:true,m:2,e:1,d:1};
+  ST[3][1][1]={yn:true,m:3,e:2,d:2};
+  ST[3][1][2]={yn:false,m:1,e:1,d:1};
+  ST[3][1][3]={yn:true,m:3,e:1,d:1};
+  ST[3][2][0]={yn:false,m:1,e:1,d:1};
+  ST[3][2][1]={yn:true,m:1,e:1,d:1};
+  ST[3][2][2]={yn:true,m:3,e:1,d:1};
+  ST[3][2][3]={yn:true,m:3,e:2,d:2};
+  ST[3][3][0]={yn:false,m:1,e:1,d:1};
+  ST[3][3][1]={yn:true,m:2,e:2,d:2};
+  ST[3][3][2]={yn:true,m:3,e:2,d:1};
+  ST[3][3][3]={yn:true,m:3,e:2,d:1};
+  ST[3][4][0]={yn:true,m:2,e:2,d:1};
+  ST[3][4][1]={yn:true,m:1,e:1,d:1};
+  ST[3][4][2]={yn:true,m:2,e:1,d:1};
+  ST[3][4][3]={yn:false,m:1,e:1,d:1};
+  ST[3][5][0]={yn:false,m:1,e:1,d:1};
+  ST[3][5][1]={yn:false,m:1,e:1,d:1};
+  ST[3][5][2]={yn:false,m:1,e:1,d:1};
+  ST[3][5][3]={yn:true,m:3,e:2,d:1};
+  ST[3][6][0]={yn:false,m:1,e:1,d:1};
+  ST[3][6][1]={yn:false,m:1,e:1,d:1};
+  ST[3][6][2]={yn:false,m:1,e:1,d:1};
+  ST[3][6][3]={yn:true,m:1,e:1,d:1};
+  ST[3][7][0]={yn:true,m:2,e:1,d:1};
+  ST[3][7][1]={yn:true,m:3,e:1,d:1};
+  ST[3][7][2]={yn:true,m:1,e:1,d:1};
+  ST[3][7][3]={yn:false,m:1,e:1,d:1};
+  ST[3][8][0]={yn:false,m:1,e:1,d:1};
+  ST[3][8][1]={yn:false,m:1,e:1,d:1};
+  ST[3][8][2]={yn:false,m:1,e:1,d:1};
+  ST[3][8][3]={yn:true,m:3,e:2,d:1};
+  // D5 — Operations & Manufacturing Excellence
+  ST[4][0][0]={yn:true,m:3,e:3,d:3};
+  ST[4][0][1]={yn:true,m:5,e:5,d:5};
+  ST[4][0][2]={yn:true,m:4,e:4,d:4};
+  ST[4][0][3]={yn:true,m:5,e:4,d:4};
+  ST[4][1][0]={yn:true,m:3,e:3,d:3};
+  ST[4][1][1]={yn:true,m:4,e:4,d:3};
+  ST[4][1][2]={yn:true,m:3,e:3,d:3};
+  ST[4][1][3]={yn:true,m:5,e:3,d:3};
+  ST[4][2][0]={yn:true,m:4,e:3,d:3};
+  ST[4][2][1]={yn:true,m:4,e:4,d:4};
+  ST[4][2][2]={yn:true,m:3,e:3,d:3};
+  ST[4][2][3]={yn:true,m:5,e:5,d:3};
+  ST[4][3][0]={yn:true,m:5,e:4,d:4};
+  ST[4][3][1]={yn:true,m:4,e:4,d:4};
+  ST[4][3][2]={yn:true,m:4,e:3,d:3};
+  ST[4][3][3]={yn:true,m:4,e:4,d:3};
+  ST[4][4][0]={yn:true,m:5,e:5,d:4};
+  ST[4][4][1]={yn:true,m:4,e:3,d:3};
+  ST[4][4][2]={yn:true,m:5,e:5,d:5};
+  ST[4][4][3]={yn:true,m:5,e:4,d:3};
+  ST[4][5][0]={yn:true,m:3,e:3,d:3};
+  ST[4][5][1]={yn:true,m:3,e:3,d:3};
+  ST[4][5][2]={yn:true,m:4,e:4,d:4};
+  ST[4][5][3]={yn:true,m:3,e:3,d:3};
+  ST[4][6][0]={yn:true,m:3,e:3,d:3};
+  ST[4][6][1]={yn:true,m:5,e:3,d:3};
+  ST[4][6][2]={yn:false,m:1,e:1,d:1};
+  ST[4][6][3]={yn:true,m:3,e:3,d:3};
+  ST[4][7][0]={yn:true,m:5,e:3,d:3};
+  ST[4][7][1]={yn:true,m:4,e:4,d:3};
+  ST[4][7][2]={yn:true,m:5,e:5,d:3};
+  ST[4][7][3]={yn:true,m:3,e:3,d:3};
+  ST[4][8][0]={yn:true,m:4,e:4,d:4};
+  ST[4][8][1]={yn:false,m:1,e:1,d:1};
+  ST[4][8][2]={yn:true,m:5,e:5,d:5};
+  ST[4][8][3]={yn:true,m:5,e:4,d:3};
+  // D6 — Supply Chain & Operational Planning
+  ST[5][0][0]={yn:true,m:4,e:2,d:2};
+  ST[5][0][1]={yn:true,m:4,e:3,d:2};
+  ST[5][0][2]={yn:true,m:3,e:2,d:2};
+  ST[5][0][3]={yn:true,m:2,e:2,d:2};
+  ST[5][1][0]={yn:true,m:3,e:2,d:2};
+  ST[5][1][1]={yn:true,m:4,e:4,d:3};
+  ST[5][1][2]={yn:true,m:4,e:3,d:3};
+  ST[5][1][3]={yn:true,m:4,e:4,d:3};
+  ST[5][2][0]={yn:true,m:2,e:2,d:2};
+  ST[5][2][1]={yn:false,m:1,e:1,d:1};
+  ST[5][2][2]={yn:true,m:3,e:3,d:3};
+  ST[5][2][3]={yn:true,m:3,e:2,d:2};
+  ST[5][3][0]={yn:true,m:3,e:3,d:3};
+  ST[5][3][1]={yn:false,m:1,e:1,d:1};
+  ST[5][3][2]={yn:true,m:3,e:2,d:2};
+  ST[5][3][3]={yn:true,m:4,e:3,d:3};
+  ST[5][4][0]={yn:true,m:2,e:2,d:2};
+  ST[5][4][1]={yn:true,m:2,e:2,d:2};
+  ST[5][4][2]={yn:true,m:4,e:2,d:2};
+  ST[5][4][3]={yn:true,m:3,e:3,d:3};
+  ST[5][5][0]={yn:true,m:4,e:4,d:3};
+  ST[5][5][1]={yn:true,m:3,e:3,d:3};
+  ST[5][5][2]={yn:true,m:2,e:2,d:2};
+  ST[5][5][3]={yn:true,m:4,e:4,d:2};
+  ST[5][6][0]={yn:true,m:4,e:3,d:3};
+  ST[5][6][1]={yn:true,m:4,e:4,d:3};
+  ST[5][6][2]={yn:false,m:1,e:1,d:1};
+  ST[5][6][3]={yn:true,m:3,e:2,d:2};
+  ST[5][7][0]={yn:true,m:2,e:2,d:2};
+  ST[5][7][1]={yn:true,m:2,e:2,d:2};
+  ST[5][7][2]={yn:true,m:3,e:2,d:2};
+  ST[5][7][3]={yn:true,m:3,e:3,d:3};
+  ST[5][8][0]={yn:true,m:2,e:2,d:2};
+  ST[5][8][1]={yn:true,m:2,e:2,d:2};
+  ST[5][8][2]={yn:true,m:4,e:4,d:2};
+  ST[5][8][3]={yn:true,m:4,e:3,d:2};
+  // D7 — Quality, Business Excellence & Sustainability
+  ST[6][0][0]={yn:false,m:1,e:1,d:1};
+  ST[6][0][1]={yn:true,m:4,e:3,d:3};
+  ST[6][0][2]={yn:true,m:4,e:4,d:4};
+  ST[6][0][3]={yn:false,m:1,e:1,d:1};
+  ST[6][1][0]={yn:true,m:5,e:3,d:2};
+  ST[6][1][1]={yn:false,m:1,e:1,d:1};
+  ST[6][1][2]={yn:true,m:3,e:3,d:2};
+  ST[6][1][3]={yn:true,m:3,e:3,d:2};
+  ST[6][2][0]={yn:true,m:4,e:4,d:3};
+  ST[6][2][1]={yn:true,m:4,e:4,d:4};
+  ST[6][2][2]={yn:true,m:3,e:3,d:3};
+  ST[6][2][3]={yn:true,m:5,e:3,d:3};
+  ST[6][3][0]={yn:true,m:3,e:3,d:3};
+  ST[6][3][1]={yn:true,m:3,e:3,d:2};
+  ST[6][3][2]={yn:true,m:5,e:4,d:3};
+  ST[6][3][3]={yn:true,m:5,e:4,d:4};
+  ST[6][4][0]={yn:true,m:4,e:4,d:3};
+  ST[6][4][1]={yn:true,m:3,e:3,d:3};
+  ST[6][4][2]={yn:true,m:3,e:3,d:2};
+  ST[6][4][3]={yn:false,m:1,e:1,d:1};
+  ST[6][5][0]={yn:true,m:5,e:3,d:3};
+  ST[6][5][1]={yn:true,m:3,e:3,d:3};
+  ST[6][5][2]={yn:false,m:1,e:1,d:1};
+  ST[6][5][3]={yn:true,m:5,e:4,d:4};
+  ST[6][6][0]={yn:true,m:3,e:3,d:3};
+  ST[6][6][1]={yn:true,m:4,e:3,d:2};
+  ST[6][6][2]={yn:true,m:5,e:4,d:3};
+  ST[6][6][3]={yn:true,m:4,e:3,d:3};
+  ST[6][7][0]={yn:true,m:4,e:4,d:2};
+  ST[6][7][1]={yn:false,m:1,e:1,d:1};
+  ST[6][7][2]={yn:true,m:5,e:3,d:3};
+  ST[6][7][3]={yn:true,m:3,e:3,d:3};
+  ST[6][8][0]={yn:true,m:3,e:3,d:3};
+  ST[6][8][1]={yn:true,m:4,e:4,d:4};
+  ST[6][8][2]={yn:true,m:3,e:3,d:2};
+  ST[6][8][3]={yn:true,m:3,e:3,d:2};
+  // D8 — Digital, Data & Industry 4.0
+  ST[7][0][0]={yn:true,m:1,e:1,d:1};
+  ST[7][0][1]={yn:true,m:1,e:1,d:1};
+  ST[7][0][2]={yn:true,m:2,e:2,d:2};
+  ST[7][0][3]={yn:false,m:1,e:1,d:1};
+  ST[7][1][0]={yn:true,m:3,e:1,d:1};
+  ST[7][1][1]={yn:true,m:3,e:3,d:3};
+  ST[7][1][2]={yn:false,m:1,e:1,d:1};
+  ST[7][1][3]={yn:false,m:1,e:1,d:1};
+  ST[7][2][0]={yn:true,m:2,e:2,d:2};
+  ST[7][2][1]={yn:false,m:1,e:1,d:1};
+  ST[7][2][2]={yn:true,m:2,e:2,d:1};
+  ST[7][2][3]={yn:true,m:2,e:2,d:2};
+  ST[7][3][0]={yn:true,m:3,e:2,d:2};
+  ST[7][3][1]={yn:false,m:1,e:1,d:1};
+  ST[7][3][2]={yn:false,m:1,e:1,d:1};
+  ST[7][3][3]={yn:false,m:1,e:1,d:1};
+  ST[7][4][0]={yn:true,m:2,e:1,d:1};
+  ST[7][4][1]={yn:true,m:3,e:2,d:2};
+  ST[7][4][2]={yn:true,m:3,e:3,d:1};
+  ST[7][4][3]={yn:true,m:1,e:1,d:1};
+  ST[7][5][0]={yn:false,m:1,e:1,d:1};
+  ST[7][5][1]={yn:false,m:1,e:1,d:1};
+  ST[7][5][2]={yn:true,m:3,e:2,d:1};
+  ST[7][5][3]={yn:false,m:1,e:1,d:1};
+  ST[7][6][0]={yn:true,m:3,e:1,d:1};
+  ST[7][6][1]={yn:true,m:2,e:2,d:2};
+  ST[7][6][2]={yn:true,m:2,e:2,d:2};
+  ST[7][6][3]={yn:true,m:2,e:1,d:1};
+  ST[7][7][0]={yn:true,m:3,e:2,d:1};
+  ST[7][7][1]={yn:false,m:1,e:1,d:1};
+  ST[7][7][2]={yn:true,m:1,e:1,d:1};
+  ST[7][7][3]={yn:true,m:2,e:1,d:1};
+  ST[7][8][0]={yn:true,m:1,e:1,d:1};
+  ST[7][8][1]={yn:true,m:1,e:1,d:1};
+  ST[7][8][2]={yn:true,m:1,e:1,d:1};
+  ST[7][8][3]={yn:true,m:2,e:1,d:1};
+  // D9 — Project, Transformation & Execution Excellence
+  ST[8][0][0]={yn:false,m:1,e:1,d:1};
+  ST[8][0][1]={yn:true,m:3,e:3,d:3};
+  ST[8][0][2]={yn:true,m:2,e:2,d:2};
+  ST[8][0][3]={yn:true,m:2,e:2,d:2};
+  ST[8][1][0]={yn:false,m:1,e:1,d:1};
+  ST[8][1][1]={yn:false,m:1,e:1,d:1};
+  ST[8][1][2]={yn:true,m:3,e:3,d:3};
+  ST[8][1][3]={yn:false,m:1,e:1,d:1};
+  ST[8][2][0]={yn:true,m:3,e:3,d:2};
+  ST[8][2][1]={yn:true,m:4,e:3,d:3};
+  ST[8][2][2]={yn:false,m:1,e:1,d:1};
+  ST[8][2][3]={yn:true,m:4,e:3,d:3};
+  ST[8][3][0]={yn:true,m:4,e:2,d:2};
+  ST[8][3][1]={yn:false,m:1,e:1,d:1};
+  ST[8][3][2]={yn:false,m:1,e:1,d:1};
+  ST[8][3][3]={yn:true,m:2,e:2,d:2};
+  ST[8][4][0]={yn:true,m:4,e:3,d:2};
+  ST[8][4][1]={yn:true,m:4,e:2,d:2};
+  ST[8][4][2]={yn:true,m:2,e:2,d:2};
+  ST[8][4][3]={yn:true,m:3,e:3,d:3};
+  ST[8][5][0]={yn:true,m:2,e:2,d:2};
+  ST[8][5][1]={yn:false,m:1,e:1,d:1};
+  ST[8][5][2]={yn:true,m:3,e:3,d:3};
+  ST[8][5][3]={yn:false,m:1,e:1,d:1};
+  ST[8][6][0]={yn:true,m:2,e:2,d:2};
+  ST[8][6][1]={yn:false,m:1,e:1,d:1};
+  ST[8][6][2]={yn:true,m:3,e:3,d:2};
+  ST[8][6][3]={yn:true,m:2,e:2,d:2};
+  ST[8][7][0]={yn:true,m:4,e:3,d:3};
+  ST[8][7][1]={yn:false,m:1,e:1,d:1};
+  ST[8][7][2]={yn:false,m:1,e:1,d:1};
+  ST[8][7][3]={yn:true,m:2,e:2,d:2};
+  ST[8][8][0]={yn:true,m:4,e:3,d:2};
+  ST[8][8][1]={yn:true,m:4,e:3,d:3};
+  ST[8][8][2]={yn:true,m:2,e:2,d:2};
+  ST[8][8][3]={yn:false,m:1,e:1,d:1};
+  // D10 — Enterprise Growth & Business Scalability
+  ST[9][0][0]={yn:true,m:3,e:1,d:1};
+  ST[9][0][1]={yn:true,m:2,e:2,d:2};
+  ST[9][0][2]={yn:true,m:3,e:3,d:3};
+  ST[9][0][3]={yn:true,m:3,e:3,d:1};
+  ST[9][1][0]={yn:false,m:1,e:1,d:1};
+  ST[9][1][1]={yn:true,m:3,e:1,d:1};
+  ST[9][1][2]={yn:true,m:3,e:1,d:1};
+  ST[9][1][3]={yn:true,m:3,e:3,d:3};
+  ST[9][2][0]={yn:true,m:3,e:2,d:1};
+  ST[9][2][1]={yn:false,m:1,e:1,d:1};
+  ST[9][2][2]={yn:false,m:1,e:1,d:1};
+  ST[9][2][3]={yn:false,m:1,e:1,d:1};
+  ST[9][3][0]={yn:true,m:2,e:1,d:1};
+  ST[9][3][1]={yn:false,m:1,e:1,d:1};
+  ST[9][3][2]={yn:true,m:2,e:1,d:1};
+  ST[9][3][3]={yn:false,m:1,e:1,d:1};
+  ST[9][4][0]={yn:true,m:2,e:1,d:1};
+  ST[9][4][1]={yn:false,m:1,e:1,d:1};
+  ST[9][4][2]={yn:false,m:1,e:1,d:1};
+  ST[9][4][3]={yn:true,m:3,e:1,d:1};
+  ST[9][5][0]={yn:true,m:2,e:1,d:1};
+  ST[9][5][1]={yn:true,m:3,e:1,d:1};
+  ST[9][5][2]={yn:true,m:3,e:1,d:1};
+  ST[9][5][3]={yn:true,m:2,e:1,d:1};
+  ST[9][6][0]={yn:true,m:3,e:3,d:3};
+  ST[9][6][1]={yn:true,m:2,e:1,d:1};
+  ST[9][6][2]={yn:true,m:2,e:1,d:1};
+  ST[9][6][3]={yn:false,m:1,e:1,d:1};
+  ST[9][7][0]={yn:true,m:2,e:2,d:2};
+  ST[9][7][1]={yn:true,m:2,e:2,d:1};
+  ST[9][7][2]={yn:true,m:3,e:3,d:3};
+  ST[9][7][3]={yn:true,m:3,e:2,d:2};
+  ST[9][8][0]={yn:true,m:3,e:1,d:1};
+  ST[9][8][1]={yn:false,m:1,e:1,d:1};
+  ST[9][8][2]={yn:true,m:2,e:2,d:2};
+  ST[9][8][3]={yn:false,m:1,e:1,d:1};
+  // D11 — Customer, Market & Commercial Excellence
+  ST[10][0][0]={yn:true,m:3,e:3,d:3};
+  ST[10][0][1]={yn:true,m:3,e:3,d:3};
+  ST[10][0][2]={yn:true,m:3,e:2,d:2};
+  ST[10][0][3]={yn:true,m:2,e:2,d:2};
+  ST[10][1][0]={yn:true,m:4,e:3,d:2};
+  ST[10][1][1]={yn:true,m:4,e:3,d:2};
+  ST[10][1][2]={yn:true,m:4,e:3,d:2};
+  ST[10][1][3]={yn:false,m:1,e:1,d:1};
+  ST[10][2][0]={yn:true,m:3,e:2,d:2};
+  ST[10][2][1]={yn:true,m:3,e:2,d:2};
+  ST[10][2][2]={yn:true,m:4,e:3,d:2};
+  ST[10][2][3]={yn:true,m:4,e:2,d:2};
+  ST[10][3][0]={yn:false,m:1,e:1,d:1};
+  ST[10][3][1]={yn:false,m:1,e:1,d:1};
+  ST[10][3][2]={yn:true,m:4,e:2,d:2};
+  ST[10][3][3]={yn:true,m:3,e:3,d:3};
+  ST[10][4][0]={yn:true,m:2,e:2,d:2};
+  ST[10][4][1]={yn:true,m:4,e:2,d:2};
+  ST[10][4][2]={yn:true,m:2,e:2,d:2};
+  ST[10][4][3]={yn:true,m:2,e:2,d:2};
+  ST[10][5][0]={yn:true,m:4,e:2,d:2};
+  ST[10][5][1]={yn:true,m:4,e:2,d:2};
+  ST[10][5][2]={yn:true,m:4,e:3,d:3};
+  ST[10][5][3]={yn:true,m:3,e:3,d:2};
+  ST[10][6][0]={yn:true,m:2,e:2,d:2};
+  ST[10][6][1]={yn:true,m:4,e:3,d:3};
+  ST[10][6][2]={yn:true,m:3,e:2,d:2};
+  ST[10][6][3]={yn:true,m:2,e:2,d:2};
+  ST[10][7][0]={yn:true,m:2,e:2,d:2};
+  ST[10][7][1]={yn:true,m:2,e:2,d:2};
+  ST[10][7][2]={yn:true,m:2,e:2,d:2};
+  ST[10][7][3]={yn:true,m:4,e:2,d:2};
+  ST[10][8][0]={yn:true,m:2,e:2,d:2};
+  ST[10][8][1]={yn:true,m:4,e:3,d:3};
+  ST[10][8][2]={yn:true,m:2,e:2,d:2};
+  ST[10][8][3]={yn:true,m:4,e:3,d:3};
+  console.log("Trial scores applied");
+})();
+
+// Restore saved state if exists
+
+itST();
 // Restore saved state if exists
 window.addEventListener('load', function(){
   if(loadState()){
-    // State restored - skip intake, go straight to app
     var ov = document.getElementById('intake-overlay');
     var app = document.getElementById('main-app');
     if(ov) ov.style.display='none';
     if(app) app.style.display='flex';
     rSB();
     gv('dash');
-    toast('✅ Previous session restored — '+
-      (IK.company||'Assessment')+
-      (IK.assessmentId?' · '+IK.assessmentId:''),'t-g',3500);
+    toast('✅ Previous session restored — '+(IK.company||'Assessment')+(IK.assessmentId?' · '+IK.assessmentId:''),'t-g',3500);
   } else {
     rSB();
     gv('dash');
   }
 });
+
+
+
+
+
+
+
+
 </script>
 
 <!-- ===== Scoring Guide Modal ===== -->
@@ -2015,9 +3330,27 @@ window.addEventListener('load', function(){
 </div>
 
 <script>
-var SG_M=['Not Established','Partially Established','Operational','Well Managed','World Class'];
-var SG_E=['No Evidence','Document Available','Implementation Verified','Performance Verified','Real-Time System'];
-var SG_D=['Not Deployed','Pilot Deployment','Department Deployed','Widely Deployed','Enterprise Wide'];
+var SG_M=[
+  'Not Established — The capability does not exist. No process, no practice, no ownership. Starting from zero.',
+  'Partially Established — Exists informally or inconsistently. Dependent on individuals, not the system. No standard process. Results vary.',
+  'Operational — A defined process is in place and generally followed. Documented, with some consistency. Reactive management.',
+  'Well Managed — Process is measured, monitored and consistently applied across the function. Data-driven. Proactive management.',
+  'World Class — Continuously improved, benchmarked against best-in-class. Recognised as an industry reference. Results are sustained and compounding.'
+];
+var SG_E=[
+  'Not Done — No evidence exists. The practice is absent. No document, no system, no record. Nothing to show.',
+  'Document Available — A policy, SOP, procedure or plan exists on paper or in a folder. Not necessarily followed or verified on the floor. (e.g. Quality manual written but not implemented)',
+  'System in Place — A formal system is operational: QMS, DMS, FMS, PMS, ERP or equivalent. The practice is embedded in a working system with records and reviews. (e.g. ISO 9001 QMS running with NCRs tracked)',
+  'Verified System — The system has been independently verified through internal audit, external audit, ISO, OHSAS, WCM pillar assessment or customer audit. Proven to work. (e.g. ISO 9001 certified, WCM Bronze or above)',
+  'Performance-Driving & Benchmarkable — The verified system is actively driving measurable improvement. Results benchmarked against industry or world-class standards. (e.g. PPM trending down, benchmarked vs OEM targets, WCM Gold)'
+];
+var SG_D=[
+  'Not Deployed — The practice exists nowhere in the organisation. No team, no site, no function is using it.',
+  'Pilot / Limited — Deployed in one team, one shift or one location only. Not yet scaled. Proof of concept stage.',
+  'Department / Function — Multiple teams or one full department is using it. Not yet cross-functional or multi-site.',
+  'Widely Deployed — Most of the organisation is using it consistently. A few exceptions or locations still to be covered.',
+  'Enterprise Wide — Deployed across the entire organisation without exception. All sites, all shifts, all functions. No gaps.'
+];
 var SG_BANDS=[
  {c:'#ef4444',r:'1.00 – 1.49',l:'High Risk'},
  {c:'#f97316',r:'1.50 – 2.49',l:'Developing'},
