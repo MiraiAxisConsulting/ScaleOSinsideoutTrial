@@ -1274,8 +1274,7 @@ function rDash(){
       +'<div class="df">'
       +'<button class="dfb p" data-di="'+di+'">📝 Assess</button>'
       +'<button class="dfb" onclick="openDimRep('+di+')">📊 Report</button>'
-      +'<button class="dfb" onclick="openDimActions('+di+')">🗺️ Actions</button>'
-      +'</div></div>';
+      +'<button class="dfb" onclick="openDimActions('+di+')">🗺️ Actions</button>'+'</div></div>';
   }).join('');
   return '<div class="ph"><h1>ScaleOS™ Enterprise Dashboard</h1>'
     +'<p>99 Capabilities · 11 Dimensions · 396 Assessment Questions</p></div>'
@@ -1495,16 +1494,716 @@ function rRoad(){
 // ==============================================================
 // REPORT HUB
 // ==============================================================
+
+
+// ==============================================================
+// COMBINED VALUE SUMMARY
+// ==============================================================
+function rValueSummary(){
+  var opp    = calcOpportunity();
+  var risk   = entRisk();
+  var total  = opp.total + risk;
+  var rev    = getRevMid();
+  var es     = entSCI();
+  var sciCol = scol(es);
+
+  function fmt(v){ return v>=1?'&#8377;'+v.toFixed(1)+' Cr':'&#8377;'+Math.round(v*100)+' L'; }
+
+  // Top 3 opportunities
+  var topOpp = opp.results.filter(function(r){return r.value>0;}).slice(0,4);
+  // Top 3 risk dims
+  var dimRisks = DIMS.map(function(d,di){return {name:d.name,code:d.code,color:d.color,risk:dimRisk(di),score:dimSCI(di)};})
+    .filter(function(d){return d.risk>0;}).sort(function(a,b){return b.risk-a.risk;}).slice(0,4);
+
+  return '<div style="padding:16px 20px 0">'
+    +'<button onclick="backToReports()" style="background:#0f2040;border:1px solid #1e3a5f;border-radius:6px;color:#60a5fa;font-size:12px;font-weight:700;padding:6px 14px;cursor:pointer">&#8592; Back to Reports</button>'
+    +'</div>'
+    +'<div style="padding:14px 20px">'
+
+    // ── THE BIG NUMBER ─────────────────────────────────────────
+    +'<div style="background:linear-gradient(135deg,#0a1628,#0f2040);border:1px solid #f5a623;border-radius:14px;padding:24px;margin-bottom:16px;text-align:center">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:2px;margin-bottom:8px">MIRAI AXIS SCALEOS&#8482; &#8212; TOTAL ECONOMIC PICTURE</div>'
+    +'<div style="font-size:14px;color:#94a3b8;margin-bottom:14px">The complete financial case for capability improvement</div>'
+    +'<div style="font-size:68px;font-weight:900;line-height:1;color:#f5a623">'+fmt(total)+'</div>'
+    +'<div style="font-size:14px;color:#94a3b8;margin-top:6px;margin-bottom:18px">Total Economic Swing</div>'
+    +'<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:center;max-width:600px;margin:0 auto">'
+
+    // Opportunity side
+    +'<div style="background:#081a08;border:1px solid #22c55e;border-radius:10px;padding:16px;text-align:center">'
+    +'<div style="font-size:10px;font-weight:700;color:#22c55e;letter-spacing:1px;margin-bottom:6px">&#128200; OPPORTUNITY</div>'
+    +'<div style="font-size:11px;color:#86efac;margin-bottom:8px">Value to unlock by improving capability</div>'
+    +'<div style="font-size:36px;font-weight:900;color:#22c55e">'+fmt(opp.total)+'</div>'
+    +'<div style="font-size:10px;color:#64748b;margin-top:4px">across '+opp.assessed.length+' improvement levers</div>'
+    +'</div>'
+
+    // Plus sign
+    +'<div style="font-size:28px;font-weight:900;color:#f5a623;padding:0 12px">+</div>'
+
+    // Risk side
+    +'<div style="background:#1a0808;border:1px solid #ef4444;border-radius:10px;padding:16px;text-align:center">'
+    +'<div style="font-size:10px;font-weight:700;color:#ef4444;letter-spacing:1px;margin-bottom:6px">&#9888;&#65039; RISK</div>'
+    +'<div style="font-size:11px;color:#fca5a5;margin-bottom:8px">Revenue exposed if gaps remain unaddressed</div>'
+    +'<div style="font-size:36px;font-weight:900;color:#ef4444">'+fmt(risk)+'</div>'
+    +'<div style="font-size:10px;color:#64748b;margin-top:4px">estimated annual exposure</div>'
+    +'</div>'
+    +'</div>'
+
+    // Enterprise SCI
+    +'<div style="margin-top:16px;font-size:12px;color:#64748b">'
+    +'Enterprise SCI: <strong style="color:'+sciCol+'">'+sl(es)+' / 5.0</strong> &#8212; '
+    +'Revenue base: <strong style="color:#f5a623">&#8377;'+rev+' Crore</strong> &#8212; '
+    +'Total swing = <strong style="color:#f5a623">'+Math.round((total/rev)*100)+'% of annual revenue</strong>'
+    +'</div>'
+    +'</div>'
+
+    // ── TWO COLUMNS: Opp breakdown + Risk breakdown ────────────
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">'
+
+    // Left: Top opportunities
+    +'<div>'
+    +'<div style="font-size:12px;font-weight:700;color:#22c55e;margin-bottom:8px">&#128200; Top Improvement Opportunities</div>'
+    +'<div style="display:flex;flex-direction:column;gap:6px">'
+    +topOpp.map(function(r){
+      var pct = opp.total>0?Math.round((r.value/opp.total)*100):0;
+      return '<div style="background:#081a08;border:1px solid #22c55e33;border-left:3px solid '+r.color+';border-radius:6px;padding:10px 12px">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'
+        +'<div style="display:flex;align-items:center;gap:6px">'
+        +'<span style="font-size:14px">'+r.icon+'</span>'
+        +'<span style="font-size:11px;font-weight:700;color:#e2e8f0">'+r.name+'</span>'
+        +'</div>'
+        +'<span style="font-size:13px;font-weight:900;color:#22c55e">'+fmt(r.value)+'</span>'
+        +'</div>'
+        +'<div style="height:4px;background:#1e3a5f;border-radius:2px">'
+        +'<div style="width:'+pct+'%;height:4px;background:'+r.color+';border-radius:2px"></div>'
+        +'</div>'
+        +'<div style="font-size:9px;color:#64748b;margin-top:3px">'+r.unit+'</div>'
+      +'</div>';
+    }).join('')
+    +'</div>'
+    +'<div style="margin-top:8px;text-align:center">'
+    +'<button onclick="RT=\'opp\';gv(\'reps\')" style="font-size:11px;color:#22c55e;background:#081a08;border:1px solid #22c55e;border-radius:6px;padding:5px 14px;cursor:pointer">View Full Opportunity Engine &#8594;</button>'
+    +'</div>'
+    +'</div>'
+
+    // Right: Top risks
+    +'<div>'
+    +'<div style="font-size:12px;font-weight:700;color:#ef4444;margin-bottom:8px">&#9888;&#65039; Top Capability Risks</div>'
+    +'<div style="display:flex;flex-direction:column;gap:6px">'
+    +dimRisks.map(function(d){
+      var pct = risk>0?Math.round((d.risk/risk)*100):0;
+      var col = d.score<2?'#ef4444':d.score<3?'#f97316':'#eab308';
+      return '<div style="background:#1a0808;border:1px solid #ef444433;border-left:3px solid '+d.color+';border-radius:6px;padding:10px 12px">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'
+        +'<div style="display:flex;align-items:center;gap:6px">'
+        +'<span style="font-size:10px;font-weight:700;color:'+d.color+'">'+d.code+'</span>'
+        +'<span style="font-size:11px;font-weight:700;color:#e2e8f0">'+d.name+'</span>'
+        +'</div>'
+        +'<span style="font-size:13px;font-weight:900;color:#ef4444">'+fmt(d.risk)+'</span>'
+        +'</div>'
+        +'<div style="height:4px;background:#1e3a5f;border-radius:2px">'
+        +'<div style="width:'+pct+'%;height:4px;background:'+col+';border-radius:2px"></div>'
+        +'</div>'
+        +'<div style="font-size:9px;color:#64748b;margin-top:3px">SCI: '+sl(d.score)+' / 5.0</div>'
+      +'</div>';
+    }).join('')
+    +'</div>'
+    +'<div style="margin-top:8px;text-align:center">'
+    +'<button onclick="RT=\'sri\';gv(\'reps\')" style="font-size:11px;color:#ef4444;background:#1a0808;border:1px solid #ef4444;border-radius:6px;padding:5px 14px;cursor:pointer">View Scale Readiness Index &#8594;</button>'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+
+    // ── The CEO statement ──────────────────────────────────────
+    +'<div style="background:linear-gradient(135deg,#0a1628,#0f2040);border:1px solid #f5a623;border-radius:10px;padding:18px 20px;margin-bottom:12px">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;margin-bottom:10px;letter-spacing:1.5px">THE BOARD-LEVEL CONVERSATION</div>'
+    +'<div style="font-size:14px;color:#e2e8f0;line-height:1.8;margin-bottom:12px">'
+    +'This assessment has identified a <strong style="color:#f5a623">'+fmt(total)+' economic swing</strong> that is directly within the control of this leadership team.<br>'
+    +'<span style="color:#22c55e">&#128200; '+fmt(opp.total)+'</span> in value locked inside the organisation, ready to be unlocked through targeted capability improvement.<br>'
+    +'<span style="color:#ef4444">&#9888;&#65039; '+fmt(risk)+'</span> of annual revenue at risk if these capability gaps are left unaddressed.<br><br>'
+    +'<strong style="color:#f5a623">The question for the board is not whether to invest in capability. The question is: can we afford not to?</strong>'
+    +'</div>'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap">'
+    +'<button onclick="RT=\'opp\';gv(\'reps\')" style="padding:8px 18px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:6px;color:#fff;font-size:11px;font-weight:700;cursor:pointer">&#128200; Full Opportunity Analysis</button>'
+    +'<button onclick="RT=\'stress\';gv(\'reps\')" style="padding:8px 18px;background:linear-gradient(135deg,#f5a623,#e67e22);border:none;border-radius:6px;color:#0a1628;font-size:11px;font-weight:700;cursor:pointer">&#128200; Growth Stress Test</button>'
+    +'<button onclick="RT=\'ceo\';gv(\'reps\')" style="padding:8px 18px;background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;border-radius:6px;color:#fff;font-size:11px;font-weight:700;cursor:pointer">&#127919; CEO Report</button>'
+    +'</div>'
+    +'</div>'
+
+    // ── Caveat ─────────────────────────────────────────────────
+    +'<div style="background:#06101e;border:1px solid #334155;border-radius:8px;padding:10px 14px;font-size:10.5px;color:#64748b;line-height:1.6">'
+    +'&#9888;&#65039; <strong style="color:#94a3b8">Note:</strong> '
+    +'Opportunity values are benchmark-based estimates derived from self-assessment scores (Phase 1). '
+    +'Revenue at risk uses an EBITDA-impact model capped at 7% of revenue. '
+    +'Both figures will be validated and refined during the Outside-In Workshop (Phase 2).'
+    +'</div>'
+    +'</div>';
+}
+// ==============================================================
+
+
+// ==============================================================
+// OPPORTUNITY ENGINE
+// ==============================================================
+function calcOpportunity(){
+  var rev = getRevMid();
+  // EBITDA assumption — 12% for mid-market Indian manufacturer
+  var ebitda = rev * 0.12;
+
+  // Each opportunity area:
+  // - maps to specific DIMS/capabilities
+  // - has a formula based on SCI gap
+  // - produces a ₹ opportunity estimate
+  // Gap ratio: how far below 4.0 (best practice) = (4.0 - score) / 3.0
+
+  function gap(di, ci_arr){
+    var scores = [];
+    ci_arr.forEach(function(ci){
+      var cs = capSCI(di, ci);
+      if(cs > 0) scores.push(cs);
+    });
+    if(scores.length === 0){
+      var ds = dimSCI(di);
+      return ds > 0 ? Math.max(0, (4.0 - ds) / 3.0) : 0;
+    }
+    var avg = scores.reduce(function(s,v){return s+v;},0) / scores.length;
+    return Math.max(0, (4.0 - avg) / 3.0);
+  }
+
+  var opportunities = [
+    {
+      id:'oee',
+      name:'OEE & Production Efficiency',
+      icon:'&#127981;',
+      category:'Operations',
+      color:'#f97316',
+      di:4, caps:[2,3,5],
+      formula:function(g){ return g > 0 ? rev * 0.04 * g : 0; },
+      unit:'Capacity Gain / Revenue Uplift',
+      how:'Improving Overall Equipment Effectiveness (OEE) by closing this gap recovers lost production capacity, reducing need for capital expenditure on new equipment.',
+      lever:'OEE improvement, predictive maintenance, production scheduling'
+    },
+    {
+      id:'inventory',
+      name:'Inventory Optimisation',
+      icon:'&#128230;',
+      category:'Supply Chain',
+      color:'#f5a623',
+      di:5, caps:[1,4,5],
+      formula:function(g){ return g > 0 ? rev * 0.03 * g : 0; },
+      unit:'Working Capital Release',
+      how:'Excess inventory locks up cash. Closing this gap reduces inventory days, releasing trapped working capital back into the business.',
+      lever:'Demand planning, SIOP, safety stock optimisation'
+    },
+    {
+      id:'scrap',
+      name:'Scrap, Rework & Quality Loss',
+      icon:'&#9881;&#65039;',
+      category:'Quality',
+      color:'#ef4444',
+      di:6, caps:[2,3,5],
+      formula:function(g){ return g > 0 ? rev * 0.025 * g : 0; },
+      unit:'EBITDA Improvement',
+      how:'Every rupee of scrap and rework is a direct EBITDA drain. Closing quality gaps reduces internal failure costs, warranty claims and customer returns.',
+      lever:'SPC, zero-defect programme, supplier quality management'
+    },
+    {
+      id:'procurement',
+      name:'Procurement & Sourcing Savings',
+      icon:'&#128201;',
+      category:'Supply Chain',
+      color:'#eab308',
+      di:5, caps:[3,4],
+      formula:function(g){ return g > 0 ? rev * 0.02 * g : 0; },
+      unit:'Cost Savings',
+      how:'Strategic sourcing, supplier consolidation and contract management improvements directly reduce material costs — typically the largest cost line for manufacturers.',
+      lever:'Strategic sourcing, supplier rationalisation, contract governance'
+    },
+    {
+      id:'working_capital',
+      name:'Working Capital Cycle',
+      icon:'&#128176;',
+      category:'Finance',
+      color:'#22c55e',
+      di:2, caps:[4,5],
+      formula:function(g){ return g > 0 ? rev * 0.025 * g : 0; },
+      unit:'Cash Flow Release',
+      how:'Improving debtor management, payable terms and cash conversion cycle reduces the cash tied up in operations — freeing capital for growth investment.',
+      lever:'Debtor management, cash conversion cycle, treasury management'
+    },
+    {
+      id:'digital',
+      name:'Digital & Process Automation',
+      icon:'&#128187;',
+      category:'Digital',
+      color:'#0ea5e9',
+      di:7, caps:[0,1,4],
+      formula:function(g){ return g > 0 ? rev * 0.02 * g : 0; },
+      unit:'Productivity & Cost Saving',
+      how:'Manual processes, data re-entry and disconnected systems create hidden labour costs and decision delays. Automation closes these productivity gaps.',
+      lever:'ERP, workflow automation, data integration'
+    },
+    {
+      id:'revenue_leakage',
+      name:'Revenue Leakage & Commercial Loss',
+      icon:'&#128200;',
+      category:'Commercial',
+      color:'#a78bfa',
+      di:10, caps:[2,3,5],
+      formula:function(g){ return g > 0 ? rev * 0.03 * g : 0; },
+      unit:'Revenue Recovery',
+      how:'Pricing discipline gaps, poor key account management and customer churn all reduce revenue below potential. Closing commercial gaps recovers lost revenue.',
+      lever:'Pricing governance, key account management, customer retention'
+    },
+    {
+      id:'energy_waste',
+      name:'Energy & Resource Efficiency',
+      icon:'&#9889;',
+      category:'Operations',
+      color:'#84cc16',
+      di:6, caps:[7],
+      formula:function(g){ return g > 0 ? rev * 0.01 * g : 0; },
+      unit:'Cost Saving',
+      how:'ESG and sustainability gaps often hide energy waste and resource inefficiency. Addressing these generates direct cost savings and protects export market access.',
+      lever:'Energy audit, ISO 50001, waste reduction programme'
+    },
+    {
+      id:'project_delivery',
+      name:'Project & Capex Delivery',
+      icon:'&#127919;',
+      category:'Projects',
+      color:'#fb923c',
+      di:8, caps:[0,1,4],
+      formula:function(g){ return g > 0 ? rev * 0.015 * g : 0; },
+      unit:'Value Protection',
+      how:'Projects running over budget and over time destroy value. Better project governance recovers this loss and ensures strategic investments deliver their intended returns.',
+      lever:'PMO, stage-gate, project cost control'
+    },
+    {
+      id:'talent',
+      name:'Talent Productivity & Attrition',
+      icon:'&#128101;',
+      category:'People',
+      color:'#8b5cf6',
+      di:1, caps:[1,2,4],
+      formula:function(g){ return g > 0 ? rev * 0.02 * g : 0; },
+      unit:'Productivity Gain',
+      how:'High attrition, low engagement and skill gaps reduce output per employee. Closing people capability gaps improves productivity and reduces the hidden cost of turnover.',
+      lever:'Retention programme, competency development, performance management'
+    },
+  ];
+
+  var results = opportunities.map(function(o){
+    var g = gap(o.di, o.caps);
+    var value = o.formula(g);
+    var confidence = g > 0.5 ? 'High' : g > 0.2 ? 'Medium' : 'Low';
+    var confCol = confidence==='High'?'#ef4444':confidence==='Medium'?'#f5a623':'#22c55e';
+    return {
+      id:o.id, name:o.name, icon:o.icon, category:o.category,
+      color:o.color, value:value, gap:g,
+      confidence:confidence, confCol:confCol,
+      unit:o.unit, how:o.how, lever:o.lever
+    };
+  });
+
+  results.sort(function(a,b){return b.value - a.value;});
+  var total = results.reduce(function(s,r){return s+r.value;},0);
+  var assessed = results.filter(function(r){return r.gap > 0;});
+
+  return {results:results, total:total, assessed:assessed, rev:rev, ebitda:ebitda};
+}
+
+function rOpportunity(){
+  return '<div style="padding:16px 20px 0">'
+    +'<button onclick="backToReports()" style="background:#0f2040;border:1px solid #1e3a5f;border-radius:6px;color:#60a5fa;font-size:12px;font-weight:700;padding:6px 14px;cursor:pointer">&#8592; Back to Reports</button>'
+    +'</div>'
+    +'<div style="padding:14px 20px">'
+    +buildOpportunityUI()
+    +'</div>';
+}
+
+function buildOpportunityUI(){
+  var d = calcOpportunity();
+  var total = d.total;
+  var totalFmt = total >= 1 ? '&#8377;'+total.toFixed(1)+' Cr' : '&#8377;'+Math.round(total*100)+' L';
+  var ebitdaImpact = d.ebitda > 0 ? ((total / d.ebitda)*100).toFixed(0) : '—';
+
+  // Category totals
+  var catTotals = {};
+  d.results.forEach(function(r){
+    catTotals[r.category] = (catTotals[r.category]||0) + r.value;
+  });
+
+  var html = ''
+    // ── Headline ──────────────────────────────────────────────
+    +'<div style="background:linear-gradient(135deg,#0a1628,#0f2040);border:1px solid #1e3a5f;border-radius:12px;padding:22px;margin-bottom:16px">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:2px;margin-bottom:6px">MIRAI AXIS SCALEOS&#8482; &#8212; OPPORTUNITY ENGINE</div>'
+    +'<div style="font-size:15px;font-weight:700;color:#e2e8f0;margin-bottom:14px">Economic Value Hidden Inside Your Organisation</div>'
+
+    // Total opportunity — BIG number
+    +'<div style="display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:16px">'
+    +'<div>'
+    +'<div style="font-size:11px;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Total Identified Opportunity</div>'
+    +'<div style="font-size:56px;font-weight:900;line-height:1;color:#f5a623">'+totalFmt+'</div>'
+    +'<div style="font-size:12px;color:#94a3b8;margin-top:4px">across '+d.assessed.length+' identified improvement areas</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:12px;flex-wrap:wrap">'
+    +'<div style="background:#0d1b2e;border:1px solid #1e3a5f;border-radius:8px;padding:10px 16px;text-align:center">'
+    +'<div style="font-size:18px;font-weight:900;color:#22c55e">'+ebitdaImpact+'%</div>'
+    +'<div style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">of EBITDA</div>'
+    +'</div>'
+    +'<div style="background:#0d1b2e;border:1px solid #1e3a5f;border-radius:8px;padding:10px 16px;text-align:center">'
+    +'<div style="font-size:18px;font-weight:900;color:#60a5fa">&#8377;'+d.rev+' Cr</div>'
+    +'<div style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Revenue Base</div>'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+
+    // What this means
+    +'<div style="background:#0d1b2e;border-left:3px solid #f5a623;border-radius:4px;padding:12px 16px;font-size:12px;color:#94a3b8;line-height:1.6">'
+    +'<strong style="color:#f5a623">What this means:</strong> This is the estimated economic value that is currently locked inside your organisation due to capability gaps. '
+    +'It is not speculative — every figure is derived directly from your assessment scores against industry benchmarks. '
+    +'This is the money that better capability will recover — through lower costs, higher output, freed cash and stronger revenue.'
+    +'</div>'
+    +'</div>'
+
+    // ── Opportunity by category ────────────────────────────────
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'
+    +Object.keys(catTotals).sort(function(a,b){return catTotals[b]-catTotals[a];}).map(function(cat){
+      var val = catTotals[cat];
+      var valFmt = val >= 1 ? '&#8377;'+val.toFixed(1)+' Cr' : '&#8377;'+Math.round(val*100)+' L';
+      var catColor = d.results.find(function(r){return r.category===cat;})||{color:'#64748b'};
+      return '<div style="background:#0d1b2e;border:1px solid '+(catColor.color||'#64748b')+';border-radius:8px;padding:8px 14px;text-align:center">'
+        +'<div style="font-size:13px;font-weight:800;color:'+(catColor.color||'#64748b')+'">'+valFmt+'</div>'
+        +'<div style="font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">'+cat+'</div>'
+        +'</div>';
+    }).join('')
+    +'</div>'
+
+    // ── Opportunity cards ──────────────────────────────────────
+    +'<div style="font-size:12px;font-weight:700;color:#c9a84c;margin-bottom:8px">Opportunity Breakdown &#8212; Ranked by Value</div>'
+    +'<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">'
+    +d.results.map(function(r,i){
+      if(r.value <= 0) return '';
+      var valFmt = r.value >= 1 ? '&#8377;'+r.value.toFixed(1)+' Cr' : '&#8377;'+Math.round(r.value*100)+' L';
+      var barPct = d.total > 0 ? Math.round((r.value/d.total)*100) : 0;
+      return '<div style="background:#0d1b2e;border:1px solid #1e3a5f;border-left:4px solid '+r.color+';border-radius:8px;padding:12px 16px">'
+        +'<div style="display:flex;align-items:center;gap:12px">'
+        +'<div style="font-size:24px;min-width:32px">'+r.icon+'</div>'
+        +'<div style="flex:1">'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
+        +'<span style="font-size:12px;font-weight:700;color:#e2e8f0">'+r.name+'</span>'
+        +'<span style="background:'+r.color+'22;border:1px solid '+r.color+';border-radius:4px;font-size:9px;font-weight:700;color:'+r.color+';padding:1px 6px">'+r.category+'</span>'
+        +'<span style="background:'+r.confCol+'22;border-radius:4px;font-size:9px;color:'+r.confCol+';padding:1px 6px">'+r.confidence+' confidence</span>'
+        +'</div>'
+        +'<div style="height:6px;background:#1e3a5f;border-radius:3px;margin-bottom:4px">'
+        +'<div style="width:'+barPct+'%;height:6px;background:'+r.color+';border-radius:3px"></div>'
+        +'</div>'
+        +'<div style="font-size:10px;color:#64748b;line-height:1.4">'+r.unit+' &#8212; '+r.how+'</div>'
+        +'</div>'
+        +'<div style="text-align:right;min-width:80px">'
+        +'<div style="font-size:20px;font-weight:900;color:'+r.color+'">'+valFmt+'</div>'
+        +'<div style="font-size:9px;color:#64748b">'+barPct+'% of total</div>'
+        +'</div>'
+        +'</div>'
+        +'<div style="margin-top:8px;padding-top:8px;border-top:1px solid #1e3a5f;font-size:10px;color:#f5a623">'
+        +'<strong>How to unlock:</strong> <span style="color:#94a3b8">'+r.lever+'</span>'
+        +'</div>'
+      +'</div>';
+    }).join('')
+    +'</div>'
+
+    // ── CEO Message ────────────────────────────────────────────
+    +'<div style="background:linear-gradient(135deg,#0a1628,#0f2040);border:1px solid #f5a623;border-radius:10px;padding:16px 20px;margin-bottom:12px">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;margin-bottom:8px;letter-spacing:1.5px">THE CEO CONVERSATION</div>'
+    +'<div style="font-size:13px;color:#e2e8f0;line-height:1.7;margin-bottom:12px">'
+    +'The question is no longer <em style="color:#94a3b8">"what is our capability maturity score?"</em><br>'
+    +'The question is <strong style="color:#f5a623">"where is the money we are leaving on the table?"</strong><br><br>'
+    +'This Opportunity Engine shows you exactly that. <strong style="color:#f5a623">'+totalFmt+'</strong> is sitting inside your organisation right now &#8212; '
+    +'locked up by capability gaps that are entirely fixable. This is not theoretical. Every figure is benchmarked against what world-class organisations of your size and sector actually achieve.'
+    +'</div>'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap">'
+    +'<div style="background:#0d1b2e;border:1px solid #1e3a5f;border-radius:8px;padding:10px 14px;flex:1;min-width:180px">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;margin-bottom:4px">&#128270; WHAT THIS IS</div>'
+    +'<div style="font-size:11px;color:#94a3b8;line-height:1.5">A benchmark-based estimate of the economic value recoverable by closing the identified capability gaps. Derived from your assessment scores.</div>'
+    +'</div>'
+    +'<div style="background:#0d1b2e;border:1px solid #1e3a5f;border-radius:8px;padding:10px 14px;flex:1;min-width:180px">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;margin-bottom:4px">&#128270; WHAT THIS IS NOT</div>'
+    +'<div style="font-size:11px;color:#94a3b8;line-height:1.5">A precise financial audit. Actual recoverable value will be validated and refined during the Outside-In Workshop with Mirai Axis.</div>'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+
+    // ── Caveat ─────────────────────────────────────────────────
+    +'<div style="background:#06101e;border:1px solid #334155;border-radius:8px;padding:10px 14px;font-size:10.5px;color:#64748b;line-height:1.6">'
+    +'&#9888;&#65039; <strong style="color:#94a3b8">Phase 1 Note:</strong> All opportunity estimates are derived from leadership self-assessment scores (Phase 1). '
+    +'Values are directional benchmarks, not audited figures. The Outside-In Workshop (Phase 2) will validate scores and refine the opportunity quantification with actual business data.'
+    +'</div>';
+
+  return html;
+}
+// ==============================================================
+
+
+// ==============================================================
+// GROWTH STRESS TEST
+// ==============================================================
+function runStressTest(targetRev){
+  var curRev=getRevMid(),gf=targetRev/curRev;
+  var bt=Math.min(4.0,2.0+(gf-1)*2.0);
+  var areas=[
+    {name:'Capacity & Operations',icon:'&#127981;',di:4,caps:[0,1,2,4],
+     imp:'Production volume, utilisation and floor space must scale proportionally.',
+     fix:'Capacity expansion, additional shifts, WCM implementation.'},
+    {name:'Supply Chain & Procurement',icon:'&#128279;',di:5,caps:[0,1,2,3,4,5],
+     imp:'Higher volumes demand more suppliers, better demand planning and tighter inventory.',
+     fix:'SIOP/IBP, supplier development, inventory optimisation.'},
+    {name:'Working Capital & Cash Flow',icon:'&#128176;',di:2,caps:[4,5],
+     imp:'Revenue growth ties up more working capital. Cash conversion cycle becomes critical.',
+     fix:'Tighten cash cycle, secure growth financing, improve debtor management.'},
+    {name:'People & Organisation',icon:'&#128101;',di:1,caps:[0,1,2,3],
+     imp:'Headcount and capability must scale. Middle management bandwidth gets stretched.',
+     fix:'Workforce planning, succession pipeline, leadership development.'},
+    {name:'Digital & ERP Systems',icon:'&#128187;',di:7,caps:[0,1,2,4],
+     imp:'Manual processes that work today will collapse at scale. ERP and data visibility are non-negotiable.',
+     fix:'ERP upgrade, data governance, process automation.'},
+    {name:'Quality at Scale',icon:'&#127942;',di:6,caps:[0,1,2,3],
+     imp:'Quality failures scale with volume. Customer PPM and compliance burden both increase.',
+     fix:'Strengthen QMS, IATF/ISO readiness, zero-defect programmes.'},
+    {name:'Leadership Bandwidth',icon:'&#127963;',di:0,caps:[0,2,4,5],
+     imp:'Governance structures that work today become bottlenecks at scale.',
+     fix:'Governance restructuring, delegation framework, strategy execution system.'},
+    {name:'Innovation & Product Pipeline',icon:'&#128161;',di:3,caps:[0,3,4],
+     imp:'Growth demands new products and faster innovation. A thin pipeline limits headroom.',
+     fix:'Stage-gate process, R&D investment, product roadmap governance.'},
+  ];
+  var results=areas.map(function(a){
+    var sc=[];
+    a.caps.forEach(function(ci){var cs=capSCI(a.di,ci);if(cs>0)sc.push(cs);});
+    var avg=sc.length>0?sc.reduce(function(s,v){return s+v;},0)/sc.length:0;
+    var score=avg>0?(avg*0.6+dimSCI(a.di)*0.4):dimSCI(a.di);
+    var status=score<=0?'u':score<bt-0.5?'c':score<bt?'w':'r';
+    return {name:a.name,icon:a.icon,score:score,status:status,imp:a.imp,fix:a.fix};
+  });
+  var scored=results.filter(function(r){return r.score>0;});
+  var mm=scored.length>0?scored.reduce(function(s,r){return s+Math.min(r.score/4.0,1.0);},0)/scored.length:0.5;
+  return {
+    curRev:curRev,targetRev:targetRev,gf:gf,
+    maxRev:Math.round(curRev*(1+mm*(gf-1))),
+    results:results,
+    critical:results.filter(function(r){return r.status==='c';}),
+    warning:results.filter(function(r){return r.status==='w';}),
+    ready:results.filter(function(r){return r.status==='r';})
+  };
+}
+
+function rStress(){
+  var curRev=getRevMid();
+  return '<div style="padding:16px 20px 0">'
+    +'<button onclick="backToReports()" style="background:#0f2040;border:1px solid #1e3a5f;border-radius:6px;color:#60a5fa;font-size:12px;font-weight:700;padding:6px 14px;cursor:pointer">&#8592; Back to Reports</button>'
+    +'</div>'
+    +'<div style="padding:14px 20px">'
+    +'<div style="background:linear-gradient(135deg,#0a1628,#12203a);border:1px solid #1e3a5f;border-radius:12px;padding:22px;margin-bottom:16px">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:2px;margin-bottom:6px">MIRAI AXIS SCALEOS&#8482;</div>'
+    +'<div style="font-size:20px;font-weight:800;color:#f1f5f9;margin-bottom:6px">Growth Stress Test</div>'
+    +'<div style="font-size:12px;color:#94a3b8;margin-bottom:16px;line-height:1.6">What happens to your enterprise capability when revenue grows? Identify which capabilities become critical constraints before you hit your growth target.</div>'
+    +'<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'
+    +'<div style="background:#0d1b2e;border:1px solid #1e3a5f;border-radius:8px;padding:10px 16px">'
+    +'<div style="font-size:10px;color:#64748b;margin-bottom:2px">Current Revenue</div>'
+    +'<div style="font-size:20px;font-weight:800;color:#f5a623">&#8377;'+curRev+' Cr</div>'
+    +'</div>'
+    +'<div style="font-size:20px;color:#334155">&#8594;</div>'
+    +'<div style="background:#0d1b2e;border:1px solid #1e3a5f;border-radius:8px;padding:10px 16px">'
+    +'<div style="font-size:10px;color:#64748b;margin-bottom:4px">Target Revenue</div>'
+    +'<div style="display:flex;align-items:center;gap:6px">'
+    +'<span style="color:#f5a623;font-size:14px;font-weight:700">&#8377;</span>'
+    +'<input id="stressTarget" type="number" min="1" placeholder="e.g. 1500" style="width:110px;background:#06101e;border:1px solid #334155;border-radius:4px;color:#f1f5f9;font-size:14px;font-weight:700;padding:4px 8px;outline:none">'
+    +'<span style="color:#64748b;font-size:12px">Crore</span>'
+    +'</div></div>'
+    +'<button onclick="runStressTestUI()" style="padding:10px 24px;background:linear-gradient(135deg,#f5a623,#e67e22);border:none;border-radius:8px;color:#0a1628;font-size:13px;font-weight:800;cursor:pointer">&#9654; Run Stress Test</button>'
+    +'</div></div>'
+    +'<div id="stressResults"></div>'
+    +'</div>';
+}
+
+function runStressTestUI(){
+  var inp=document.getElementById('stressTarget');
+  if(!inp){toast('Cannot find input field','t-a',2000);return;}
+  var target=parseFloat(inp.value),curRev=getRevMid();
+  if(!target||target<=0){toast('Please enter a valid target revenue','t-a',3000);return;}
+  if(target<=curRev){toast('Target must be greater than current revenue &#8377;'+curRev+' Cr','t-a',3000);return;}
+  var d=runStressTest(target),gfPct=Math.round((d.gf-1)*100);
+  var sc=d.critical.length===0?'#22c55e':d.critical.length<=2?'#f5a623':'#ef4444';
+  var slbl=d.critical.length===0?'LOW STRESS &#8212; GROWTH IS ACHIEVABLE':
+           d.critical.length<=2?'MODERATE STRESS &#8212; TARGETED INVESTMENT NEEDED':
+           'HIGH STRESS &#8212; CAPABILITY GAPS WILL BLOCK GROWTH';
+  var h=''
+    +'<div style="background:#0a1628;border:1px solid '+sc+';border-left:4px solid '+sc+';border-radius:10px;padding:16px 20px;margin-bottom:14px">'
+    +'<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:'+sc+';margin-bottom:8px">STRESS TEST VERDICT</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">'
+    +'<div style="text-align:center"><div style="font-size:24px;font-weight:900;color:#f5a623">&#8377;'+d.curRev+' Cr</div><div style="font-size:10px;color:#64748b">Current Revenue</div></div>'
+    +'<div style="text-align:center"><div style="font-size:24px;font-weight:900;color:#e2e8f0">+'+gfPct+'%</div><div style="font-size:10px;color:#64748b">Growth Target</div></div>'
+    +'<div style="text-align:center"><div style="font-size:24px;font-weight:900;color:#60a5fa">&#8377;'+d.targetRev+' Cr</div><div style="font-size:10px;color:#64748b">Target Revenue</div></div>'
+    +'</div>'
+    +'<div style="background:'+sc+'18;border-radius:8px;padding:12px 16px;margin-bottom:10px">'
+    +'<div style="font-size:13px;font-weight:800;color:'+sc+';margin-bottom:4px">'+slbl+'</div>'
+    +'<div style="font-size:12px;color:#e2e8f0;line-height:1.6">'
+    +'Current capability supports approximately <strong style="color:#f5a623">&#8377;'+d.maxRev+' Crore</strong>. '
+    +(d.critical.length>0?'At &#8377;'+d.targetRev+' Cr, <strong style="color:#ef4444">'+d.critical.length+' area'+(d.critical.length>1?'s':'')+' are critical constraints</strong> that will break under this growth.':'The enterprise has sufficient capability to absorb this level of growth.')
+    +'</div></div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    +(d.critical.length?'<span style="background:#ef444422;border:1px solid #ef4444;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;color:#ef4444">&#128308; '+d.critical.length+' Critical</span>':'')
+    +(d.warning.length?'<span style="background:#f5a62322;border:1px solid #f5a623;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;color:#f5a623">&#128993; '+d.warning.length+' Warning</span>':'')
+    +(d.ready.length?'<span style="background:#22c55e22;border:1px solid #22c55e;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;color:#22c55e">&#128994; '+d.ready.length+' Ready</span>':'')
+    +'</div></div>'
+    +'<div style="font-size:12px;font-weight:700;color:#c9a84c;margin-bottom:8px">Capability Stress Analysis &#8212; Area by Area</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">'
+    +d.results.map(function(r){
+      var col=r.status==='c'?'#ef4444':r.status==='w'?'#f5a623':r.status==='r'?'#22c55e':'#475569';
+      var bg=r.status==='c'?'#1a0808':r.status==='w'?'#1a1208':r.status==='r'?'#081a08':'#0d1b2e';
+      var lbl=r.status==='c'?'&#128308; CRITICAL CONSTRAINT':r.status==='w'?'&#128993; WATCH CLOSELY':r.status==='r'?'&#128994; SCALE READY':'&#9898; Not Assessed';
+      var bw=r.score>0?Math.round((r.score/5)*100):0;
+      return '<div style="background:'+bg+';border:1px solid '+col+';border-top:3px solid '+col+';border-radius:8px;padding:12px 14px">'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+        +'<span style="font-size:18px">'+r.icon+'</span>'
+        +'<div style="flex:1"><div style="font-size:12px;font-weight:700;color:#e2e8f0">'+r.name+'</div>'
+        +'<div style="font-size:10px;font-weight:700;color:'+col+'">'+lbl+'</div></div>'
+        +'<div style="font-size:20px;font-weight:900;color:'+col+'">'+sl(r.score)+'</div></div>'
+        +'<div style="height:6px;background:#1e3a5f;border-radius:3px;margin-bottom:8px">'
+        +'<div style="width:'+bw+'%;height:6px;background:'+col+';border-radius:3px"></div></div>'
+        +'<div style="font-size:10px;color:#94a3b8;line-height:1.5;margin-bottom:6px">'+r.imp+'</div>'
+        +(r.status==='c'||r.status==='w'?'<div style="font-size:10px;color:'+col+';line-height:1.5"><strong>Fix:</strong> '+r.fix+'</div>':'')
+      +'</div>';
+    }).join('')
+    +'</div>'
+    +(d.critical.length>0
+      ?'<div style="background:#0d1b2e;border:1px solid #1e3a5f;border-left:4px solid #f5a623;border-radius:8px;padding:14px 16px;margin-bottom:12px">'
+      +'<div style="font-size:10px;font-weight:700;color:#f5a623;margin-bottom:8px;letter-spacing:1px">CEO ACTION &#8212; BEFORE YOU SCALE</div>'
+      +'<div style="font-size:12px;color:#e2e8f0;line-height:1.7">Before committing to &#8377;'+d.targetRev+' Crore revenue, these must be resolved: '
+      +d.critical.map(function(r,i){return '<strong style="color:#ef4444">'+(i+1)+'. '+r.name+'</strong>';}).join(' &middot; ')
+      +'. These are structural prerequisites. Scaling without fixing them will create failures at exactly the moment the business needs to perform.</div></div>'
+      :'')
+    +'<div style="background:#06101e;border:1px solid #334155;border-radius:8px;padding:10px 14px;font-size:10.5px;color:#64748b;line-height:1.6">'
+    +'&#9888;&#65039; <strong style="color:#94a3b8">Simulation Note:</strong> Based on Phase 1 self-assessment scores. Validate actual capability in the Outside-In Workshop before using for financial planning.</div>';
+  var el=document.getElementById('stressResults');
+  if(el) el.innerHTML=h;
+}
+// ==============================================================
+
+
+// ==============================================================
+// SCALE READINESS INDEX
+// ==============================================================
+function calcSRI(){
+  var CL=[
+    {name:'Leadership & Strategy',short:'Leadership',icon:'\ud83c\udfd7\ufe0f',dims:[0,2],weight:0.15},
+    {name:'Organisation & People',short:'Organisation',icon:'\ud83d\udc65',dims:[1,8],weight:0.15},
+    {name:'Manufacturing & Quality',short:'Manufacturing',icon:'\ud83c\udfed',dims:[4,6],weight:0.20},
+    {name:'Supply Chain & Planning',short:'Supply Chain',icon:'\ud83d\udd17',dims:[5],weight:0.15},
+    {name:'Digital & Innovation',short:'Digital',icon:'\ud83d\udcbb',dims:[3,7],weight:0.20},
+    {name:'Growth & Customer',short:'Growth',icon:'\ud83d\udcc8',dims:[9,10],weight:0.15},
+  ];
+  var res=CL.map(function(cl){
+    var tot=0,cnt=0;
+    cl.dims.forEach(function(di){ var ds=dimSCI(di); if(ds>0){tot+=ds;cnt++;} });
+    var avg=cnt>0?tot/cnt:0;
+    var score=Math.round((avg/5)*100);
+    var col=score>=70?'#22c55e':score>=50?'#f5a623':'#ef4444';
+    var dot=score>=70?'\ud83d\udfe2':score>=50?'\ud83d\udfe1':'\ud83d\udd34';
+    var status=score>=70?'ready':score>=50?'developing':'critical';
+    return {name:cl.name,short:cl.short,icon:cl.icon,score:score,col:col,dot:dot,status:status,weight:cl.weight};
+  });
+  var sri=0;
+  res.forEach(function(r){ sri+=r.score*r.weight; });
+  return {sri:Math.round(sri),clusters:res};
+}
+
+function rSRI(){
+  var d=calcSRI(), sri=d.sri, CL=d.clusters;
+  var sriCol=sri>=70?'#22c55e':sri>=50?'#f5a623':'#ef4444';
+  var sriLbl=sri>=70?'Scale Ready':sri>=50?'Developing Readiness':'Not Yet Ready';
+  var sriDesc=sri>=70?'Strong capability foundations. The enterprise is positioned to absorb and sustain growth.':
+    sri>=50?'Selective readiness. Some engines are ready to scale — others will become bottlenecks without targeted investment.':
+    'Significant gaps make scaling risky. Growth without fixing these foundations will amplify existing problems.';
+  var totRisk=entRisk();
+  var assessed=0;
+  DIMS.forEach(function(_,di){DIMS[di].caps.forEach(function(_,ci){if(capSCI(di,ci)>0)assessed++;});});
+
+  var rows=CL.map(function(cl,i){
+    var bg=i%2===0?'#0a1628':'#0d1b2e';
+    return '<div style="background:'+bg+';border-bottom:1px solid #1e3a5f;padding:12px 20px;display:flex;align-items:center;gap:14px">'
+      +'<div style="width:26px;text-align:center;font-size:18px">'+cl.icon+'</div>'
+      +'<div style="flex:1"><div style="font-size:12px;font-weight:700;color:#e2e8f0;margin-bottom:5px">'+cl.name+'</div>'
+      +'<div style="height:8px;background:#1e3a5f;border-radius:4px"><div style="width:'+cl.score+'%;height:8px;background:'+cl.col+';border-radius:4px"></div></div></div>'
+      +'<div style="min-width:72px;text-align:center"><div style="font-size:22px;font-weight:900;color:'+cl.col+'">'+cl.score+'</div>'
+      +'<div style="font-size:9px;color:#64748b">/ 100</div></div>'
+      +'<div style="font-size:18px">'+cl.dot+'</div></div>';
+  }).join('');
+
+  var critical=CL.filter(function(c){return c.status==='critical';});
+  var developing=CL.filter(function(c){return c.status==='developing';});
+  var ready=CL.filter(function(c){return c.status==='ready';});
+  var insight='';
+  if(critical.length) insight+='<div style="margin-bottom:6px"><span style="color:#ef4444;font-weight:700">Critical gaps: </span><span style="color:#e2e8f0">'+critical.map(function(c){return c.short;}).join(', ')+'</span> \u2014 will be bottlenecks under growth.</div>';
+  if(developing.length) insight+='<div style="margin-bottom:6px"><span style="color:#f5a623;font-weight:700">Needs investment: </span><span style="color:#e2e8f0">'+developing.map(function(c){return c.short;}).join(', ')+'</span> \u2014 developing but not yet ready for scale.</div>';
+  if(ready.length) insight+='<div><span style="color:#22c55e;font-weight:700">Scale-ready: </span><span style="color:#e2e8f0">'+ready.map(function(c){return c.short;}).join(', ')+'</span> \u2014 these engines can support and absorb growth.</div>';
+
+  return '<div style="padding:16px 20px 0">'
+    +'<button onclick="RT=\'\';gv(\'reps\')" style="background:#0f2040;border:1px solid #1e3a5f;border-radius:6px;color:#60a5fa;font-size:12px;font-weight:700;padding:6px 14px;cursor:pointer">&#8592; Back to Reports</button>'
+    +'</div><div style="padding:14px 20px">'
+    +'<div style="background:linear-gradient(135deg,#0a1628,#0f2040);border:1px solid #1e3a5f;border-radius:12px;padding:22px;margin-bottom:14px;text-align:center">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:2px;margin-bottom:4px">MIRAI AXIS SCALEOS\u2122</div>'
+    +'<div style="font-size:15px;font-weight:700;color:#e2e8f0;margin-bottom:12px">Scale Readiness Index\u2122</div>'
+    +'<div style="font-size:80px;font-weight:900;line-height:1;color:'+sriCol+'">'+sri+'</div>'
+    +'<div style="font-size:18px;color:#64748b;margin-bottom:8px">/ 100</div>'
+    +'<div style="display:inline-block;background:'+sriCol+'22;border:1px solid '+sriCol+';border-radius:20px;padding:4px 18px;font-size:12px;font-weight:700;color:'+sriCol+';margin-bottom:12px">'+sriLbl+'</div>'
+    +'<div style="font-size:12px;color:#94a3b8;max-width:500px;margin:0 auto;line-height:1.6">'+sriDesc+'</div>'
+    +(totRisk>0?'<div style="margin-top:10px;font-size:12px;color:#fca5a5">Capability gaps put an estimated <strong style="color:#ef4444">'+fmtRisk(totRisk)+'</strong> of annual revenue at risk if scaling is attempted without intervention.</div>':'')
+    +'</div>'
+    +'<div style="font-size:12px;font-weight:700;color:#c9a84c;margin-bottom:8px">Readiness by Strategic Area</div>'
+    +'<div style="border:1px solid #1e3a5f;border-radius:10px;overflow:hidden;margin-bottom:14px">'
+    +'<div style="background:#06101e;padding:8px 20px 8px 60px;display:flex;gap:14px;border-bottom:1px solid #1e3a5f">'
+    +'<div style="flex:1;font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Strategic Area</div>'
+    +'<div style="min-width:72px;text-align:center;font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Score</div>'
+    +'<div style="min-width:26px;font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase">Status</div>'
+    +'</div>'+rows+'</div>'
+    +'<div style="background:#0d1b2e;border:1px solid #1e3a5f;border-left:4px solid #f5a623;border-radius:8px;padding:12px 16px;margin-bottom:12px">'
+    +'<div style="font-size:10px;font-weight:700;color:#f5a623;margin-bottom:8px;letter-spacing:1px">CEO READINESS INSIGHT</div>'
+    +'<div style="font-size:12px;line-height:1.65">'+insight+'</div></div>'
+    +'<div style="background:#06101e;border:1px solid #334155;border-radius:8px;padding:10px 14px;font-size:10.5px;color:#64748b;line-height:1.6">'
+    +'&#9888;&#65039; <strong style="color:#94a3b8">Phase 1 — Leadership Perception:</strong> '
+    +'This Scale Readiness Index reflects leadership self-assessment across '+assessed+' of 99 capabilities. '
+    +'Scores will be independently validated during the Outside-In Workshop (Phase 2).'
+    +'</div></div>';
+}
+// ==============================================================
+
+
+function backToReports(){ RT=''; gv('reps'); }
 function rRepHub(){
   if(RT==='exec') return rExec();
   if(RT==='detail') return rDetail();
   if(RT==='ceo') return rCEO();
   if(RT==='summary') return rSummary();
+  if(RT==='sri') return rSRI();
+  if(RT==='stress') return rStress();
+  if(RT==='opp') return rOpportunity();
+  if(RT==='value') return rValueSummary();
   return '<div class="rhw"><div class="rht">Reports</div><div class="rhs">Select a report type to view</div>'
     +'<div class="rhg">'
     +'<div class="rhc" data-rt="exec"><div class="rhci">📊</div><div class="rhcn">Executive Report</div><div class="rhcd">High-level summary for leadership — Enterprise SCI, dimension scores, and top priorities</div></div>'
     +'<div class="rhc" data-rt="detail"><div class="rhci">📋</div><div class="rhcn">Detailed Assessment</div><div class="rhcd">Full capability breakdown with M, E, D scores across all 11 dimensions</div></div>'+'<div class="rhc" data-rt="ceo"><div class="rhci">🎯</div><div class="rhcn">CEO Final Analysis Report</div><div class="rhcd">Executive-ready report with radar chart, top gaps, revenue at risk, quick-win roadmap and strategic next steps</div></div>'+'<div class="rhc" data-rt="summary"><div class="rhcn">📑</div><div class="rhcn">Overall Summary Report</div><div class="rhcd">Complete enterprise overview — all dimensions, capability scores, strengths, gaps and 90-day action plan</div></div>'
-    +'</div></div>';
+    +'<div class="rhc" data-rt="sri"><div class="rhci">🎯</div><div class="rhcn">Scale Readiness Index™</div><div class="rhcd">One powerful headline — how ready is the enterprise to scale? 6 strategic clusters scored 0–100 with instant CEO insight.</div></div>'
+    +'<div class="rhc" data-rt="stress"><div class="rhci">&#128200;</div><div class="rhcn">Growth Stress Test</div><div class="rhcd">Simulate revenue growth &#8212; see which capabilities break first and what your enterprise can truly support today.</div></div>'
+    +'<div class="rhc" data-rt="opp"><div class="rhci">&#128279;</div><div class="rhcn">Opportunity Engine</div><div class="rhcd">Quantify the economic value hidden inside your organisation &#8212; total &#8377; opportunity locked in capability gaps across 10 areas.</div></div>'
+    +'<div class="rhc" data-rt="value" style="border:1px solid #f5a623">'
+    +'<div class="rhci">&#128279;</div>'
+    +'<div class="rhcn" style="color:#f5a623">Total Economic Picture</div>'
+    +'<div class="rhcd">The complete financial case &#8212; opportunity to unlock + revenue at risk combined into one board-level economic swing.</div>'
+    +'</div>'
+    +'</div>'
+    +'<div style="margin-top:18px;background:#060e1c;border:1px solid #1e3a5f;border-radius:10px;padding:14px 20px">'+'<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:1.5px;margin-bottom:12px">SCI SCORING COLOUR INDEX</div>'+'<div style="font-size:11px;color:#7890a8;margin-bottom:12px;line-height:1.5">Every score in all reports uses the same colour scale. SCI = Maturity ×0.50 + Evidence ×0.25 + Deployment ×0.25, on a 1.0–5.0 scale.</div>'+'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">'+'<div style="background:#1a0808;border:1px solid #ef4444;border-top:3px solid #ef4444;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#ef4444"></div>'+'<span style="font-size:13px;font-weight:900;color:#ef4444">1.0 – 1.9</span></div>'+'<div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:3px">Critical</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Absent or severely underdeveloped. Immediate intervention. High business risk.</div></div>'+'<div style="background:#1a0f08;border:1px solid #f97316;border-top:3px solid #f97316;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#f97316"></div>'+'<span style="font-size:13px;font-weight:900;color:#f97316">2.0 – 2.9</span></div>'+'<div style="font-size:11px;font-weight:700;color:#f97316;margin-bottom:3px">Developing</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Foundations exist but key gaps remain. Needs structured investment and ownership.</div></div>'+'<div style="background:#141008;border:1px solid #eab308;border-top:3px solid #eab308;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#eab308"></div>'+'<span style="font-size:13px;font-weight:900;color:#eab308">3.0 – 3.4</span></div>'+'<div style="font-size:11px;font-weight:700;color:#eab308;margin-bottom:3px">Progressing</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Operational with reasonable consistency. Gap to best-in-class is closing.</div></div>'+'<div style="background:#0a1408;border:1px solid #22c55e;border-top:3px solid #22c55e;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#22c55e"></div>'+'<span style="font-size:13px;font-weight:900;color:#22c55e">3.5 – 4.4</span></div>'+'<div style="font-size:11px;font-weight:700;color:#22c55e;margin-bottom:3px">Well Managed</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Strong verified capability. Competitive advantage territory.</div></div>'+'<div style="background:#08141a;border:1px solid #0ea5e9;border-top:3px solid #0ea5e9;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#0ea5e9"></div>'+'<span style="font-size:13px;font-weight:900;color:#0ea5e9">4.5 – 5.0</span></div>'+'<div style="font-size:11px;font-weight:700;color:#0ea5e9;margin-bottom:3px">World Class</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Industry-leading. Continuously benchmarked. Protect and leverage.</div></div>'+'</div></div>'
+    +'<div style="margin-top:12px;background:#060e1c;border:1px solid #1e3a5f;border-radius:10px;padding:14px 20px">'+'<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:1.5px;margin-bottom:12px">SCALE READINESS INDEX™ — SCORING RANGE</div>'+'<div style="font-size:11px;color:#7890a8;margin-bottom:12px;line-height:1.5">The Scale Readiness Index™ converts SCI scores into a 0–100 readiness score across 6 strategic clusters, weighted by their impact on enterprise scalability.</div>'+'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'+'<div style="background:#1a0808;border:1px solid #ef4444;border-top:3px solid #ef4444;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#ef4444"></div>'+'<span style="font-size:13px;font-weight:900;color:#ef4444">0 – 39</span></div>'+'<div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:3px">?? Not Ready</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Critical gaps in this area. Scaling will amplify problems. Fix the foundation first.</div></div>'+'<div style="background:#141008;border:1px solid #f5a623;border-top:3px solid #f5a623;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#f5a623"></div>'+'<span style="font-size:13px;font-weight:900;color:#f5a623">40 – 69</span></div>'+'<div style="font-size:11px;font-weight:700;color:#f5a623;margin-bottom:3px">?? Developing Readiness</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Partial readiness. Targeted investment needed before committing to scale.</div></div>'+'<div style="background:#0a1408;border:1px solid #22c55e;border-top:3px solid #22c55e;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#22c55e"></div>'+'<span style="font-size:13px;font-weight:900;color:#22c55e">70 – 100</span></div>'+'<div style="font-size:11px;font-weight:700;color:#22c55e;margin-bottom:3px">?? Scale Ready</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Strong foundation. Can absorb and sustain growth without becoming a bottleneck.</div></div>'+'</div>'+'<div style="margin-top:10px;background:#0d1b2e;border-radius:6px;padding:8px 12px;font-size:10px;color:#64748b">'+'<strong style="color:#94a3b8">Cluster weights:</strong> Manufacturing &amp; Quality 20% &middot; Digital &amp; Innovation 20% &middot; Leadership 15% &middot; Organisation 15% &middot; Supply Chain 15% &middot; Growth &amp; Customer 15%'+'</div></div>'
+    +'</div>';
 }
 
 // ==============================================================
@@ -2585,10 +3284,110 @@ function loadState(){
   } catch(e){ return false; }
 }
 
+
+function showClearConfirm(){
+  // Show a proper confirmation modal — not just browser confirm
+  var assessed = 0;
+  DIMS.forEach(function(_,di){ DIMS[di].caps.forEach(function(_,ci){ if(capSCI(di,ci)>0) assessed++; }); });
+  var company = (window.IK&&IK.company)?IK.company:'this assessment';
+
+  var modal = document.createElement('div');
+  modal.id = 'clear-modal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);'
+    +'z-index:99998;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML = '<div style="background:#0a1628;border:2px solid #ef4444;border-radius:14px;'
+    +'padding:28px 32px;max-width:440px;width:90%;box-shadow:0 16px 48px rgba(0,0,0,0.8)">'
+    +'<div style="font-size:32px;text-align:center;margin-bottom:12px">&#9888;&#65039;</div>'
+    +'<div style="font-size:16px;font-weight:800;color:#f1f5f9;text-align:center;margin-bottom:8px">Clear Session & Restart?</div>'
+    +'<div style="font-size:12px;color:#94a3b8;text-align:center;margin-bottom:16px;line-height:1.6">'
+    +'You have assessed <strong style="color:#f5a623">'+assessed+' of 99 capabilities</strong> for <strong style="color:#f5a623">'+company+'</strong>.<br>'
+    +'This will permanently delete all your assessment data.'
+    +'</div>'
+    +'<div style="background:#1a0808;border:1px solid #ef4444;border-radius:8px;padding:12px;margin-bottom:16px">'
+    +'<div style="font-size:11px;color:#fca5a5;margin-bottom:8px">Type <strong>CLEAR</strong> to confirm:</div>'
+    +'<input id="clear-input" type="text" placeholder="Type CLEAR here" style="width:100%;background:#0d1b2e;border:1px solid #ef4444;'
+    +'border-radius:6px;color:#f1f5f9;font-size:14px;font-weight:700;padding:8px 12px;outline:none;box-sizing:border-box">'
+    +'</div>'
+    +'<div style="display:flex;gap:10px">'
+    +'<button onclick="document.getElementById(\'clear-modal\').remove()" '
+    +'style="flex:1;padding:10px;background:#0f2040;border:1px solid #334155;border-radius:8px;'
+    +'color:#94a3b8;font-size:13px;font-weight:700;cursor:pointer">&#8592; Cancel</button>'
+    +'<button id="clear-confirm-btn" onclick="doConfirmClear()" '
+    +'style="flex:1;padding:10px;background:#7f1d1d;border:1px solid #ef4444;border-radius:8px;'
+    +'color:#fca5a5;font-size:13px;font-weight:700;cursor:pointer;opacity:0.5" disabled>Clear All Data</button>'
+    +'</div>'
+    +'</div>';
+  document.body.appendChild(modal);
+
+  // Enable confirm button only when user types CLEAR
+  document.getElementById('clear-input').addEventListener('input', function(){
+    var btn = document.getElementById('clear-confirm-btn');
+    var valid = this.value.trim().toUpperCase() === 'CLEAR';
+    btn.disabled = !valid;
+    btn.style.opacity = valid ? '1' : '0.5';
+    btn.style.background = valid ? '#dc2626' : '#7f1d1d';
+    btn.style.color = valid ? '#fff' : '#fca5a5';
+  });
+  setTimeout(function(){ var inp=document.getElementById('clear-input'); if(inp) inp.focus(); }, 100);
+}
+
+function doConfirmClear(){
+  var modal = document.getElementById('clear-modal');
+  if(modal) modal.remove();
+  clearState();
+}
+
+
 function clearState(){
-  try{ localStorage.removeItem(LS_KEY); } catch(e){}
-  // Hard reload — everything goes to zero stage
-  location.reload();
+  // Step 1: Backup current session before wiping
+  var backup = null;
+  try{
+    backup = localStorage.getItem(LS_KEY);
+    var BACKUP_KEY = LS_KEY + '_backup';
+    if(backup) localStorage.setItem(BACKUP_KEY, backup);
+    localStorage.removeItem(LS_KEY);
+  } catch(e){}
+
+  // Step 2: Show UNDO toast for 10 seconds
+  var undone = false;
+  var toastEl = document.createElement('div');
+  toastEl.id = 'undo-toast';
+  toastEl.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);'
+    +'background:#0f2040;border:2px solid #f5a623;border-radius:10px;padding:14px 20px;'
+    +'z-index:99999;display:flex;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,0.6)';
+  toastEl.innerHTML = '<span style="color:#fca5a5;font-size:13px;font-weight:700">&#9888;&#65039; Session cleared.</span>'
+    +'<span style="color:#94a3b8;font-size:12px">All your assessment data has been removed.</span>'
+    +'<button id="undo-btn" style="background:#f5a623;border:none;border-radius:6px;color:#0a1628;'
+    +'font-size:12px;font-weight:800;padding:6px 16px;cursor:pointer">&#8635; UNDO</button>'
+    +'<span id="undo-countdown" style="color:#64748b;font-size:11px;min-width:40px">10s</span>';
+  document.body.appendChild(toastEl);
+
+  // Countdown
+  var seconds = 10;
+  var ticker = setInterval(function(){
+    seconds--;
+    var cd = document.getElementById('undo-countdown');
+    if(cd) cd.textContent = seconds + 's';
+    if(seconds <= 0){
+      clearInterval(ticker);
+      if(!undone) location.reload(); // truly clear now
+    }
+  }, 1000);
+
+  // UNDO button
+  document.getElementById('undo-btn').addEventListener('click', function(){
+    undone = true;
+    clearInterval(ticker);
+    // Restore backup
+    try{
+      var BACKUP_KEY = LS_KEY + '_backup';
+      var bk = localStorage.getItem(BACKUP_KEY);
+      if(bk){ localStorage.setItem(LS_KEY, bk); localStorage.removeItem(BACKUP_KEY); }
+    } catch(e){}
+    var t = document.getElementById('undo-toast');
+    if(t) t.remove();
+    toast('\u2705 Session restored \u2014 your data is safe!','t-g',4000);
+  });
 }
 
 
@@ -2651,6 +3450,8 @@ IK.date        = '13 August 2026';
 // ──────────────────────────────────────────────────────────────
 
 // ── TRIAL DATA: Prefilled scores for all 396 questions ──
+// Trial scores — only apply when no saved session exists
+if(!localStorage.getItem(LS_KEY)){
 (function applyTrialScores(){
   // D1 — Leadership, Strategy & Governance
   ST[0][0][0]={yn:true,m:2,e:2,d:2};
@@ -3060,7 +3861,9 @@ IK.date        = '13 August 2026';
   ST[10][8][2]={yn:true,m:2,e:2,d:2};
   ST[10][8][3]={yn:true,m:4,e:3,d:3};
   console.log("Trial scores applied");
-})();
+})()
+}
+;
 
 // Restore saved state if exists
 
