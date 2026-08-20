@@ -762,6 +762,30 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 
 <!-- END MAIN -->
 <script>
+// ================================================================
+// DOMAIN LOCK — ScaleOS™ Mirai Axis Consulting LLP
+// ================================================================
+(function(){
+  var AUTHORISED=['miraiaxisconsulting.github.io','localhost','127.0.0.1','miraiaxis.com','www.miraiaxis.com'];
+  var host=window.location.hostname.toLowerCase();
+  var proto=window.location.protocol;
+  if(proto==='file:') return;
+  var ok=AUTHORISED.some(function(d){ return host===d||host.endsWith('.'+d); });
+  if(!ok){
+    document.documentElement.innerHTML='<html><head><style>*{margin:0;padding:0}body{background:#060d1a;display:flex;align-items:center;justify-content:center;height:100vh;font-family:Segoe UI,sans-serif}.lb{background:#0a1628;border:2px solid #ef4444;border-radius:16px;padding:40px 48px;max-width:500px;text-align:center}</style></head><body>'
+      +'<div class="lb"><div style="font-size:48px;margin-bottom:16px">??</div>'
+      +'<div style="font-size:11px;font-weight:700;color:#ef4444;letter-spacing:2px;margin-bottom:12px">UNAUTHORISED ACCESS</div>'
+      +'<div style="font-size:20px;font-weight:900;color:#f1f5f9;margin-bottom:12px">ScaleOS™ Platform Locked</div>'
+      +'<div style="font-size:13px;color:#64748b;line-height:1.8;margin-bottom:20px">'
+      +'This software is the exclusive property of<br><strong style="color:#f5a623">Mirai Axis Consulting LLP</strong><br>'
+      +'Unauthorised use is strictly prohibited.</div>'
+      +'<div style="font-size:11px;color:#475569">Copyright © 2026 Mirai Axis Consulting LLP</div></div>'
+      +'</body></html>';
+    throw new Error('ScaleOS: Unauthorised domain.');
+  }
+})();
+// ================================================================
+
 /*
  * ================================================================
  *   ScaleOS™ Enterprise Capability Assessment Platform
@@ -824,10 +848,13 @@ var WN = {
 var BL = {};   // BL[di][ci] = baseline score (editable)
 
 function initBL(){
+  var saved = null;
+  try { saved = JSON.parse(localStorage.getItem(BL_KEY)); } catch(e){}
   DIMS.forEach(function(d,di){
     BL[di] = {};
     d.caps.forEach(function(c,ci){
-      BL[di][ci] = c.score;   // start from hardcoded baseline
+      // Use saved benchmark if available, else default to 4.0
+      BL[di][ci] = (saved&&saved[di]&&saved[di][ci]!=null) ? saved[di][ci] : 4.0;
     });
   });
 }
@@ -835,23 +862,22 @@ function initBL(){
 function getBL(di,ci){ return BL[di][ci]; }
 
 function saveBaselines(){
-  // BL is already updated live via bsUpd() on each input change
-  // Just confirm to the user
+  saveBL();
   var total=0;
   DIMS.forEach(function(_,di){ DIMS[di].caps.forEach(function(_,ci){ total++; }); });
   var el = document.getElementById('bs-saved');
   if(el){ el.style.opacity='1'; setTimeout(function(){ el.style.opacity='0'; },2000); }
-  toast('✅ All '+total+' baselines saved','t-g',2500);
+  toast('✅ All '+total+' benchmarks saved — gaps updated across all reports','t-g',3000);
 }
 
 function resetBaselines(){
-  if(!confirm('Reset ALL baselines to original values?')) return;
+  if(!confirm('Reset ALL 99 benchmarks to default (4.0)?')) return;
   DIMS.forEach(function(d,di){
-    d.caps.forEach(function(c,ci){ BL[di][ci]=c.score; });
+    d.caps.forEach(function(_,ci){ BL[di][ci]=4.0; });
   });
-  // Re-render the view to refresh inputs
+  saveBL();
   rMain();
-  toast('Baselines reset to original values','t-b',2000);
+  toast('All 99 benchmarks reset to 4.0','t-b',2000);
 }
 
 function updateBSBars(){
@@ -889,67 +915,122 @@ function bsUpd(di,ci,val){
   var bar=document.getElementById('bsbar-'+di+'-'+ci);
   if(bar){
     var pct=(v/5)*100;
-    var col=v<2?'#ef4444':v<3?'#f97316':v<4?'#eab308':v<4.5?'#22c55e':'#a78bfa';
+    var col=scol(v);
     bar.style.width=pct+'%';
     bar.style.background=col;
   }
+  // Update score display
+  var scoreEl=document.getElementById('bsval-'+di+'-'+ci);
+  if(scoreEl) scoreEl.textContent=v.toFixed(1);
+  // Auto-save to localStorage
+  saveBL();
 }
 
 // ==============================================================
 // BASELINE SETUP VIEW
 // ==============================================================
 function rBase(){
-  var dimBlocks = DIMS.map(function(d,di){
-    var avg = d.caps.reduce(function(a,c,ci){ return a+BL[di][ci]; },0)/d.caps.length;
-    var avgCol = avg<2?'#ef4444':avg<3?'#f97316':avg<4?'#eab308':avg<4.5?'#22c55e':'#a78bfa';
-    var caps = d.caps.map(function(c,ci){
-      var v = BL[di][ci];
-      var pct = (v/5)*100;
-      var col = v<2?'#ef4444':v<3?'#f97316':v<4?'#eab308':v<4.5?'#22c55e':'#a78bfa';
-      return '<div class="bs-cap">'
-        +'<span class="bs-cap-code">'+c.id.replace('SC-','')+'</span>'
-        +'<span class="bs-cap-name">'+c.name+'</span>'
-        +'<div class="bs-cap-inp-wrap">'
-        +'<span class="bs-cap-lbl">Baseline:</span>'
-        +'<input class="bs-inp" type="number" min="1" max="5" step="0.1" '
-        +'value="'+v.toFixed(1)+'" '
-        +'onchange="bsUpd('+di+','+ci+',this.value)">'
-        +'</div>'
-        +'<div class="bs-bar"><div class="bs-bar-fill" id="bsbar-'+di+'-'+ci+'" style="width:'+pct+'%;background:'+col+'"></div></div>'
-        +'</div>';
-    }).join('');
-    return '<div class="bs-dim">'
-      +'<div class="bs-dim-hdr" style="border-left-color:'+d.color+'" onclick="toggleBSDim('+di+')">'
-      +'<span class="bs-dim-icon">'+d.icon+'</span>'
-      +'<div class="bs-dim-info">'
-      +'<div class="bs-dim-code" style="color:'+d.color+'">'+d.code+'</div>'
-      +'<div class="bs-dim-name">'+d.name+'</div>'
-      +'</div>'
-      +'<span class="bs-dim-avg" style="color:'+avgCol+'">Avg: '+avg.toFixed(1)+'</span>'
-      +'<span class="bs-dim-toggle" id="bstog-'+di+'">▼</span>'
-      +'</div>'
-      +'<div class="bs-caps" id="bscaps-'+di+'">'+caps+'</div>'
-      +'</div>';
-  }).join('');
+  var totalCaps = 0, customised = 0;
+  DIMS.forEach(function(_,di){
+    DIMS[di].caps.forEach(function(_,ci){
+      totalCaps++;
+      if(Math.abs(BL[di][ci]-4.0)>0.05) customised++;
+    });
+  });
 
-  return '<div class="bsw">'
-    +'<div class="bsw-hdr">'
-    +'<div class="bsw-title">⚙️ Baseline Setup</div>'
-    +'<div class="bsw-sub">Enter the target or benchmark baseline score (1.0 – 5.0) for each capability before beginning your assessment. '
-    +'These baselines define your organisation&#39;s expected performance level and are used to calculate gap scores throughout all reports and the roadmap.</div>'
-    +'<div class="bsw-note">💡 <div><strong>How to use:</strong> Enter a baseline score (1.0–5.0) for each of the 99 capabilities. '
-    +'Baselines represent your organisation&#39;s target or industry benchmark. '
-    +'Once saved, all gap analysis, executive reports, and roadmap prioritisation will reflect your custom baselines. '
-    +'You can use the same baseline for all capabilities in a dimension, or set them individually.</div></div>'
-    +'<div class="bsw-actions">'
-    +'<button class="bs-save" onclick="saveBaselines()">💾 Save All Baselines</button>'
-    +'<button class="bs-reset" onclick="resetBaselines()">↺ Reset to Defaults</button>'
-    +'<span class="bs-saved-toast" id="bs-saved">✅ Saved</span>'
-    +'<span class="bs-hint">Tip: Click any dimension header to collapse/expand it</span>'
-    +'</div>'
-    +'</div>'
-    +'<div class="bsw-dims">'+dimBlocks+'</div>'
-    +'</div>';
+  var h = '<div style="padding:14px 20px">';
+
+  // ── Header ──────────────────────────────────────────────────────────────
+  h += '<div style="background:linear-gradient(135deg,#0a1628,#0f2040);border:1px solid #1e3a5f;border-radius:12px;padding:20px;margin-bottom:16px">';
+  h += '<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:2px;margin-bottom:6px">MIRAI AXIS SCALEOS\u2122 \u2014 BENCHMARK CONFIGURATION</div>';
+  h += '<div style="font-size:16px;font-weight:800;color:#f1f5f9;margin-bottom:6px">Set Capability Benchmarks</div>';
+  h += '<div style="font-size:12px;color:#94a3b8;margin-bottom:16px;line-height:1.6">';
+  h += 'Set the benchmark score (1.0\u20135.0) for each of the 99 capabilities. ';
+  h += 'These benchmarks drive the Gap Analysis across all reports. ';
+  h += 'Default is 4.0. Adjust per client industry, size and growth ambition.';
+  h += '</div>';
+
+  // Stats row
+  h += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px">';
+  h += '<div style="background:#0d1b2e;border:1px solid #1e3a5f;border-radius:8px;padding:10px 16px;text-align:center">';
+  h += '<div style="font-size:20px;font-weight:900;color:#f5a623">99</div>';
+  h += '<div style="font-size:10px;color:#64748b">Total Capabilities</div></div>';
+  h += '<div style="background:#0d1b2e;border:1px solid #22c55e;border-radius:8px;padding:10px 16px;text-align:center">';
+  h += '<div style="font-size:20px;font-weight:900;color:#22c55e">'+customised+'</div>';
+  h += '<div style="font-size:10px;color:#64748b">Customised</div></div>';
+  h += '<div style="background:#0d1b2e;border:1px solid #1e3a5f;border-radius:8px;padding:10px 16px;text-align:center">';
+  h += '<div style="font-size:20px;font-weight:900;color:#60a5fa">'+(totalCaps-customised)+'</div>';
+  h += '<div style="font-size:10px;color:#64748b">At Default (4.0)</div></div>';
+  h += '</div>';
+
+  // Action buttons
+  h += '<div style="display:flex;gap:10px;flex-wrap:wrap">';
+  h += '<button onclick="saveBaselines()" style="padding:9px 20px;background:linear-gradient(135deg,#166534,#15803d);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer">&#128190; Save All Benchmarks</button>';
+  h += '<button onclick="resetBaselines()" style="padding:9px 20px;background:#0f2040;border:1px solid #334155;border-radius:8px;color:#94a3b8;font-size:12px;font-weight:700;cursor:pointer">&#8635; Reset All to 4.0</button>';
+  h += '<span id="bs-saved" style="color:#22c55e;font-size:12px;font-weight:700;line-height:36px;opacity:0;transition:opacity 0.3s">\u2705 Saved!</span>';
+  h += '</div></div>';
+
+  // ── Dimension blocks ─────────────────────────────────────────────────────
+  DIMS.forEach(function(d,di){
+    var dimAvg = d.caps.reduce(function(a,_,ci){ return a+BL[di][ci]; },0)/d.caps.length;
+    h += '<div style="background:#0a1628;border:1px solid #1e3a5f;border-left:4px solid '+d.color+';border-radius:10px;padding:16px;margin-bottom:12px">';
+
+    // Dimension header
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
+    h += '<div style="display:flex;align-items:center;gap:10px">';
+    h += '<span style="font-size:20px">'+d.icon+'</span>';
+    h += '<div>';
+    h += '<div style="font-size:13px;font-weight:800;color:'+d.color+'">'+d.code+' \u2014 '+d.name+'</div>';
+    h += '<div style="font-size:10px;color:#64748b">9 capabilities \u2014 Avg benchmark: <span style="color:'+scol(dimAvg)+'">'+dimAvg.toFixed(1)+'</span></div>';
+    h += '</div></div>';
+    h += '<button onclick="setDimBL('+di+',4.0)" style="padding:4px 12px;background:#0d1b2e;border:1px solid #334155;border-radius:6px;color:#64748b;font-size:10px;cursor:pointer">Reset to 4.0</button>';
+    h += '</div>';
+
+    // Capability rows
+    d.caps.forEach(function(c,ci){
+      var v = BL[di][ci];
+      var col = scol(v);
+      var pct = (v/5)*100;
+      var lbl = v<2.0?'Critical':v<3.0?'Developing':v<4.0?'Progressing':v<4.5?'Well Managed':'World Class';
+
+      h += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #1e3a5f">';
+
+      // Capability code + name
+      h += '<div style="min-width:90px"><span style="font-size:10px;font-weight:700;color:'+d.color+'">'+c.id+'</span></div>';
+      h += '<div style="flex:1;font-size:11px;color:#94a3b8">'+c.name+'</div>';
+
+      // Progress bar
+      h += '<div style="width:100px;background:#1e3a5f;border-radius:3px;height:5px;flex-shrink:0">';
+      h += '<div id="bsbar-'+di+'-'+ci+'" style="width:'+pct+'%;height:5px;background:'+col+';border-radius:3px;transition:width 0.2s"></div>';
+      h += '</div>';
+
+      // Band label
+      h += '<div style="min-width:80px;font-size:9px;font-weight:700;color:'+col+';text-align:right">'+lbl+'</div>';
+
+      // Score display
+      h += '<div id="bsval-'+di+'-'+ci+'" style="min-width:28px;font-size:13px;font-weight:900;color:'+col+';text-align:right">'+v.toFixed(1)+'</div>';
+
+      // Input
+      h += '<input type="number" min="1" max="5" step="0.1" value="'+v.toFixed(1)+'" ';
+      h += 'onchange="bsUpd('+di+','+ci+',this.value)" ';
+      h += 'style="width:56px;background:#0d1b2e;border:1px solid #334155;border-radius:6px;';
+      h += 'color:#f1f5f9;font-size:12px;font-weight:700;padding:4px 6px;text-align:center;outline:none">';
+
+      h += '</div>';
+    });
+
+    h += '</div>';
+  });
+
+  // Phase note
+  h += '<div style="background:#06101e;border:1px solid #334155;border-radius:8px;padding:10px 14px;font-size:10.5px;color:#64748b;line-height:1.6;margin-top:4px">';
+  h += '\u2139\ufe0f <strong style="color:#94a3b8">How to use:</strong> Set benchmarks before the client fills the assessment. ';
+  h += 'Use industry standards, previous assessments, or Mirai Axis norms. ';
+  h += 'All gap calculations across every report will use these benchmarks automatically.';
+  h += '</div>';
+
+  h += '</div>';
+  return h;
 }
 
 // ==============================================================
@@ -1013,18 +1094,18 @@ function capStat(di,ci){
 // COLOURS
 // ==============================================================
 function scol(v){
-  if(!v||v<1)return '#7890a8';
-  if(v<1.5)return '#ef4444';
-  if(v<2.5)return '#f97316';
-  if(v<3.5)return '#eab308';
-  if(v<4.5)return '#22c55e';
-  return '#a78bfa';
+  if(!v||v<1)return '#7890a8';  // Not scored
+  if(v<2.0)return '#ef4444';    // Critical
+  if(v<3.0)return '#f97316';    // Developing
+  if(v<4.0)return '#eab308';    // Progressing
+  if(v<4.5)return '#22c55e';    // Well Managed
+  return '#a78bfa';              // World Class
 }
 function scc(v){
   if(!v||v<1)return '';
-  if(v<1.5)return 'c1';
-  if(v<2.5)return 'c2';
-  if(v<3.5)return 'c3';
+  if(v<2.0)return 'c1';
+  if(v<3.0)return 'c2';
+  if(v<4.0)return 'c3';
   if(v<4.5)return 'c4';
   return 'c5';
 }
@@ -2370,19 +2451,18 @@ function rRepHub(){
   if(RT==='stress') return rStress();
   if(RT==='opp') return rOpportunity();
   if(RT==='value') return rValueSummary();
+  if(RT==='gaps') return rGapSummary();
   return '<div class="rhw"><div class="rht">Reports</div><div class="rhs">Select a report type to view</div>'
     +'<div class="rhg">'
-    +'<div class="rhc" data-rt="exec"><div class="rhci">📊</div><div class="rhcn">Executive Report</div><div class="rhcd">High-level summary for leadership — Enterprise SCI, dimension scores, and top priorities</div></div>'
-    +'<div class="rhc" data-rt="detail"><div class="rhci">📋</div><div class="rhcn">Detailed Assessment</div><div class="rhcd">Full capability breakdown with M, E, D scores across all 11 dimensions</div></div>'+'<div class="rhc" data-rt="ceo"><div class="rhci">🎯</div><div class="rhcn">CEO Final Analysis Report</div><div class="rhcd">Executive-ready report with radar chart, top gaps, revenue at risk, quick-win roadmap and strategic next steps</div></div>'+'<div class="rhc" data-rt="summary"><div class="rhcn">📑</div><div class="rhcn">Overall Summary Report</div><div class="rhcd">Complete enterprise overview — all dimensions, capability scores, strengths, gaps and 90-day action plan</div></div>'
-    +'<div class="rhc" data-rt="sri"><div class="rhci">🎯</div><div class="rhcn">Scale Readiness Index™</div><div class="rhcd">One powerful headline — how ready is the enterprise to scale? 6 strategic clusters scored 0–100 with instant CEO insight.</div></div>'
-    +'<div class="rhc" data-rt="stress"><div class="rhci">&#128200;</div><div class="rhcn">Growth Stress Test</div><div class="rhcd">Simulate revenue growth &#8212; see which capabilities break first and what your enterprise can truly support today.</div></div>'
-    +'<div class="rhc" data-rt="opp"><div class="rhci">&#128279;</div><div class="rhcn">Opportunity Engine</div><div class="rhcd">Quantify the economic value hidden inside your organisation &#8212; total &#8377; opportunity locked in capability gaps across 10 areas.</div></div>'
-    +'<div class="rhc" data-rt="value" style="border:1px solid #f5a623">'
-    +'<div class="rhci">&#128279;</div>'
-    +'<div class="rhcn" style="color:#f5a623">Total Economic Picture</div>'
-    +'<div class="rhcd">The complete financial case &#8212; opportunity to unlock + revenue at risk combined into one board-level economic swing.</div>'
-    +'</div>'
-    +'</div>'
+    +'<div class="rhc" data-rt="gaps" style="border:1px solid #ef4444"><div class="rhci">&#128269;</div><div class="rhcn" style="color:#ef4444">Capability Gap Analysis</div><div class="rhcd">How many of 99 capabilities are below benchmark? Layer 1: Gaps. Layer 2: Critical Observations — No Evidence, Claimed Not Proven, Not Deployed.</div></div>'
+    +'<div class="rhc" data-rt="exec"><div class="rhci">&#128202;</div><div class="rhcn">Executive Report</div><div class="rhcd">High-level summary for leadership — Enterprise SCI, dimension scores, evidence gaps and top priorities.</div></div>'
+    +'<div class="rhc" data-rt="detail"><div class="rhci">&#128203;</div><div class="rhcn">Detailed Assessment</div><div class="rhcd">Full capability breakdown with M, E, D scores across all 11 dimensions and 99 capabilities.</div></div>'
+    +'<div class="rhc" data-rt="sri"><div class="rhci">&#127919;</div><div class="rhcn">Scale Readiness Index&#8482;</div><div class="rhcd">How ready is the enterprise to scale? 6 strategic clusters scored 0&#8211;100 with instant CEO insight.</div></div>'
+    +'<div class="rhc" data-rt="stress"><div class="rhci">&#128200;</div><div class="rhcn">Growth Stress Test</div><div class="rhcd">Simulate revenue growth &#8212; see which capabilities break first and what the enterprise can truly support today.</div></div>'
+    +'<div class="rhc" data-rt="opp"><div class="rhci">&#128176;</div><div class="rhcn">Opportunity Engine</div><div class="rhcd">Quantify the &#8377; value hidden in capability gaps &#8212; total economic opportunity across 10 areas.</div></div>'
+    +'<div class="rhc" data-rt="value" style="border:1px solid #f5a623"><div class="rhci">&#128279;</div><div class="rhcn" style="color:#f5a623">Total Economic Picture</div><div class="rhcd">The complete financial case &#8212; opportunity to unlock + revenue at risk = total economic swing for the board.</div></div>'
+    +'<div class="rhc" data-rt="summary"><div class="rhci">&#128196;</div><div class="rhcn">Overall Summary Report</div><div class="rhcd">Complete enterprise overview &#8212; all dimensions, capability scores, strengths, gaps and 90-day action plan.</div></div>'
+    +'<div class="rhc" data-rt="ceo" style="border:1px solid #7c3aed"><div class="rhci">&#127942;</div><div class="rhcn" style="color:#a78bfa">CEO Final Analysis Report</div><div class="rhcd">The culmination of all assessments &#8212; executive-ready with radar chart, gap analysis, economic picture and strategic roadmap.</div></div>'+'</div>'
     +'<div style="margin-top:18px;background:#060e1c;border:1px solid #1e3a5f;border-radius:10px;padding:14px 20px">'+'<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:1.5px;margin-bottom:12px">SCI SCORING COLOUR INDEX</div>'+'<div style="font-size:11px;color:#7890a8;margin-bottom:12px;line-height:1.5">Every score in all reports uses the same colour scale. SCI = Maturity ×0.50 + Evidence ×0.25 + Deployment ×0.25, on a 1.0–5.0 scale.</div>'+'<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">'+'<div style="background:#1a0808;border:1px solid #ef4444;border-top:3px solid #ef4444;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#ef4444"></div>'+'<span style="font-size:13px;font-weight:900;color:#ef4444">1.0 – 1.9</span></div>'+'<div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:3px">Critical</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Absent or severely underdeveloped. Immediate intervention. High business risk.</div></div>'+'<div style="background:#1a0f08;border:1px solid #f97316;border-top:3px solid #f97316;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#f97316"></div>'+'<span style="font-size:13px;font-weight:900;color:#f97316">2.0 – 2.9</span></div>'+'<div style="font-size:11px;font-weight:700;color:#f97316;margin-bottom:3px">Developing</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Foundations exist but key gaps remain. Needs structured investment and ownership.</div></div>'+'<div style="background:#141008;border:1px solid #eab308;border-top:3px solid #eab308;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#eab308"></div>'+'<span style="font-size:13px;font-weight:900;color:#eab308">3.0 – 3.4</span></div>'+'<div style="font-size:11px;font-weight:700;color:#eab308;margin-bottom:3px">Progressing</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Operational with reasonable consistency. Gap to best-in-class is closing.</div></div>'+'<div style="background:#0a1408;border:1px solid #22c55e;border-top:3px solid #22c55e;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#22c55e"></div>'+'<span style="font-size:13px;font-weight:900;color:#22c55e">3.5 – 4.4</span></div>'+'<div style="font-size:11px;font-weight:700;color:#22c55e;margin-bottom:3px">Well Managed</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Strong verified capability. Competitive advantage territory.</div></div>'+'<div style="background:#08141a;border:1px solid #0ea5e9;border-top:3px solid #0ea5e9;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#0ea5e9"></div>'+'<span style="font-size:13px;font-weight:900;color:#0ea5e9">4.5 – 5.0</span></div>'+'<div style="font-size:11px;font-weight:700;color:#0ea5e9;margin-bottom:3px">World Class</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Industry-leading. Continuously benchmarked. Protect and leverage.</div></div>'+'</div></div>'
     +'<div style="margin-top:12px;background:#060e1c;border:1px solid #1e3a5f;border-radius:10px;padding:14px 20px">'+'<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:1.5px;margin-bottom:12px">SCALE READINESS INDEX™ — SCORING RANGE</div>'+'<div style="font-size:11px;color:#7890a8;margin-bottom:12px;line-height:1.5">The Scale Readiness Index™ converts SCI scores into a 0–100 readiness score across 6 strategic clusters, weighted by their impact on enterprise scalability.</div>'+'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">'+'<div style="background:#1a0808;border:1px solid #ef4444;border-top:3px solid #ef4444;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#ef4444"></div>'+'<span style="font-size:13px;font-weight:900;color:#ef4444">0 – 39</span></div>'+'<div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:3px">?? Not Ready</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Critical gaps in this area. Scaling will amplify problems. Fix the foundation first.</div></div>'+'<div style="background:#141008;border:1px solid #f5a623;border-top:3px solid #f5a623;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#f5a623"></div>'+'<span style="font-size:13px;font-weight:900;color:#f5a623">40 – 69</span></div>'+'<div style="font-size:11px;font-weight:700;color:#f5a623;margin-bottom:3px">?? Developing Readiness</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Partial readiness. Targeted investment needed before committing to scale.</div></div>'+'<div style="background:#0a1408;border:1px solid #22c55e;border-top:3px solid #22c55e;border-radius:8px;padding:10px 12px">'+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:12px;height:12px;border-radius:50%;background:#22c55e"></div>'+'<span style="font-size:13px;font-weight:900;color:#22c55e">70 – 100</span></div>'+'<div style="font-size:11px;font-weight:700;color:#22c55e;margin-bottom:3px">?? Scale Ready</div>'+'<div style="font-size:10px;color:#94a3b8;line-height:1.5">Strong foundation. Can absorb and sustain growth without becoming a bottleneck.</div></div>'+'</div>'+'<div style="margin-top:10px;background:#0d1b2e;border-radius:6px;padding:8px 12px;font-size:10px;color:#64748b">'+'<strong style="color:#94a3b8">Cluster weights:</strong> Manufacturing &amp; Quality 20% &middot; Digital &amp; Innovation 20% &middot; Leadership 15% &middot; Organisation 15% &middot; Supply Chain 15% &middot; Growth &amp; Customer 15%'+'</div></div>'
     +'</div>';
@@ -3443,6 +3523,7 @@ function fmtRisk(cr){
 // AUTO-SAVE ENGINE (localStorage)
 // ==============================================================
 var LS_KEY = 'scaleos_v1';
+var BL_KEY = 'scaleos_bl_v1';
 
 function saveState(){
   try{
@@ -4051,6 +4132,215 @@ if(!localStorage.getItem(LS_KEY)){
 
 itST();
 // Restore saved state if exists
+function setDimBL(di, val){
+  DIMS[di].caps.forEach(function(_,ci){
+    BL[di][ci] = parseFloat(val);
+  });
+  saveBL();
+  rMain();
+  toast('All benchmarks for '+DIMS[di].code+' set to '+val,'t-g',2000);
+}
+
+
+// ================================================================
+// EVIDENCE GAP ANALYSIS
+// ================================================================
+function calcEvidenceGaps(){
+  var noEvidence=0,claimedNotProven=0,notDeployed=0;
+  var noEvidenceList=[],claimedList=[],notDeployedList=[];
+  DIMS.forEach(function(d,di){
+    d.caps.forEach(function(c,ci){
+      var s=ST[di]&&ST[di][ci]?ST[di][ci]:{};
+      var mS=[],eS=[],dS=[];
+      c.q.forEach(function(_,qi){
+        var r=s[qi]||{m:0,e:0,d:0};
+        if(r.m>0)mS.push(r.m);
+        if(r.e>0)eS.push(r.e);
+        if(r.d>0)dS.push(r.d);
+      });
+      var mA=mS.length?mS.reduce(function(a,b){return a+b;},0)/mS.length:0;
+      var eA=eS.length?eS.reduce(function(a,b){return a+b;},0)/eS.length:0;
+      var dA=dS.length?dS.reduce(function(a,b){return a+b;},0)/dS.length:0;
+      var cs=capSCI(di,ci);
+      if(cs<=0) return;
+      if(eA>0&&eA<1.5||mA>0&&!eS.length){
+        noEvidence++;
+        noEvidenceList.push({dim:d.code,cap:c.id,name:c.name,m:mA,e:eA});
+      }
+      if(mA>=3&&(eA<1.5||!eS.length)){
+        claimedNotProven++;
+        claimedList.push({dim:d.code,cap:c.id,name:c.name,m:mA,e:eA});
+      }
+      if(dA>0&&dA<1.5||mA>0&&!dS.length){
+        notDeployed++;
+        notDeployedList.push({dim:d.code,cap:c.id,name:c.name,m:mA,d:dA});
+      }
+    });
+  });
+  return {noEvidence:noEvidence,claimedNotProven:claimedNotProven,notDeployed:notDeployed,
+    noEvidenceList:noEvidenceList,claimedList:claimedList,notDeployedList:notDeployedList};
+}
+
+function rEvidenceGapGlobal(){
+  var eg=calcEvidenceGaps();
+  var h='<div style="background:#0a1628;border:1px solid #1e3a5f;border-left:4px solid #ef4444;border-radius:10px;padding:16px 20px;margin-bottom:14px">';
+  h+='<div style="font-size:11px;font-weight:700;color:#ef4444;letter-spacing:1px;margin-bottom:12px">EVIDENCE GAP ANALYSIS</div>';
+  if(eg.claimedNotProven>0){
+    h+='<div style="background:#1a0a00;border-left:3px solid #f97316;border-radius:4px;padding:10px 14px;margin-bottom:8px">';
+    h+='<div style="font-size:11px;font-weight:700;color:#f97316;margin-bottom:4px">&#9888;&#65039; CLAIMED NOT PROVEN — '+eg.claimedNotProven+' of 99 Capabilities</div>';
+    h+='<div style="font-size:11px;color:#94a3b8;margin-bottom:6px">M≥3 but no supporting evidence. Primary Outside-In Workshop agenda.</div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:5px">';
+    eg.claimedList.forEach(function(c){ h+='<span style="background:#2a1000;border:1px solid #f97316;border-radius:4px;padding:2px 8px;font-size:10px;color:#f97316">'+c.cap+'</span>'; });
+    h+='</div></div>';
+  }
+  if(eg.noEvidence>0){
+    h+='<div style="background:#1a0808;border-left:3px solid #ef4444;border-radius:4px;padding:10px 14px;margin-bottom:8px">';
+    h+='<div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:4px">&#128308; NO EVIDENCE — '+eg.noEvidence+' of 99 Capabilities</div>';
+    h+='<div style="font-size:11px;color:#94a3b8;margin-bottom:6px">E=1. Nothing to show. Cannot be verified.</div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:5px">';
+    eg.noEvidenceList.forEach(function(c){ h+='<span style="background:#200a0a;border:1px solid #ef4444;border-radius:4px;padding:2px 8px;font-size:10px;color:#ef4444">'+c.cap+'</span>'; });
+    h+='</div></div>';
+  }
+  if(eg.notDeployed>0){
+    h+='<div style="background:#1a1400;border-left:3px solid #eab308;border-radius:4px;padding:10px 14px">';
+    h+='<div style="font-size:11px;font-weight:700;color:#eab308;margin-bottom:4px">&#128993; NOT DEPLOYED — '+eg.notDeployed+' of 99 Capabilities</div>';
+    h+='<div style="font-size:11px;color:#94a3b8">Exists on paper. Not deployed in practice.</div></div>';
+  }
+  if(!eg.claimedNotProven&&!eg.noEvidence&&!eg.notDeployed){
+    h+='<div style="color:#22c55e;font-size:12px">&#9989; No significant evidence gaps identified.</div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+function rEvidenceGapDim(di){
+  var caps=DIMS[di].caps; var claimed=[],noEv=[],notDep=[];
+  caps.forEach(function(c,ci){
+    var s=ST[di]&&ST[di][ci]?ST[di][ci]:{};
+    var mS=[],eS=[],dS=[];
+    c.q.forEach(function(_,qi){ var r=s[qi]||{m:0,e:0,d:0}; if(r.m>0)mS.push(r.m); if(r.e>0)eS.push(r.e); if(r.d>0)dS.push(r.d); });
+    var mA=mS.length?mS.reduce(function(a,b){return a+b;},0)/mS.length:0;
+    var eA=eS.length?eS.reduce(function(a,b){return a+b;},0)/eS.length:0;
+    var dA=dS.length?dS.reduce(function(a,b){return a+b;},0)/dS.length:0;
+    if(mA<=0) return;
+    if(mA>=3&&(eA<1.5||!eS.length)) claimed.push(c.id+' — '+c.name+' (M:'+mA.toFixed(1)+')');
+    if(eA>0&&eA<1.5||mA>0&&!eS.length) noEv.push(c.id+' — '+c.name);
+    if(dA>0&&dA<1.5) notDep.push(c.id+' — '+c.name);
+  });
+  var h='<div style="margin-top:14px;background:#0a1628;border:1px solid #1e3a5f;border-left:4px solid #ef4444;border-radius:10px;padding:14px 16px">';
+  h+='<div style="font-size:10px;font-weight:700;color:#ef4444;letter-spacing:1px;margin-bottom:10px">EVIDENCE GAP ANALYSIS — THIS DIMENSION</div>';
+  if(claimed.length){ h+='<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:700;color:#f97316;margin-bottom:4px">&#9888;&#65039; Claimed Not Proven</div>'; claimed.forEach(function(n){ h+='<div style="font-size:11px;color:#94a3b8;padding:2px 0 2px 10px;border-left:2px solid #f97316;margin-bottom:3px">'+n+'</div>'; }); h+='</div>'; }
+  if(noEv.length){ h+='<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:4px">&#128308; No Evidence</div>'; noEv.forEach(function(n){ h+='<div style="font-size:11px;color:#94a3b8;padding:2px 0 2px 10px;border-left:2px solid #ef4444;margin-bottom:3px">'+n+'</div>'; }); h+='</div>'; }
+  if(notDep.length){ h+='<div><div style="font-size:11px;font-weight:700;color:#eab308;margin-bottom:4px">&#128993; Not Deployed</div>'; notDep.forEach(function(n){ h+='<div style="font-size:11px;color:#94a3b8;padding:2px 0 2px 10px;border-left:2px solid #eab308;margin-bottom:3px">'+n+'</div>'; }); h+='</div>'; }
+  if(!claimed.length&&!noEv.length&&!notDep.length) h+='<div style="color:#22c55e;font-size:12px">&#9989; No evidence gaps in this dimension.</div>';
+  h+='</div>';
+  return h;
+}
+
+function saveBL(){
+  try{ localStorage.setItem(BL_KEY,JSON.stringify(BL)); }catch(e){}
+}
+
+// ================================================================
+// CAPABILITY GAP ANALYSIS
+// ================================================================
+function calcCapabilityGaps(){
+  var DEFAULT_BENCH=4.0;
+  var gaps=0,met=0,notAssessed=0;
+  var gapList=[],metList=[];
+  DIMS.forEach(function(d,di){
+    d.caps.forEach(function(c,ci){
+      var s=capSCI(di,ci);
+      var capBench=(BL[di]&&BL[di][ci]!=null)?BL[di][ci]:DEFAULT_BENCH;
+      if(s<=0){ notAssessed++; }
+      else if(s<capBench){
+        gaps++;
+        gapList.push({di:di,ci:ci,dim:d.code,cap:c.id,name:c.name,
+          score:s,bench:capBench,gap:parseFloat((capBench-s).toFixed(2)),color:d.color});
+      } else {
+        met++;
+        metList.push({di:di,ci:ci,dim:d.code,cap:c.id,name:c.name,
+          score:s,bench:capBench,color:d.color});
+      }
+    });
+  });
+  gapList.sort(function(a,b){ return a.score-b.score; });
+  var assessed=gaps+met;
+  var gapPct=assessed>0?Math.round((gaps/assessed)*100):0;
+  var metPct=assessed>0?Math.round((met/assessed)*100):0;
+  return {benchmark:DEFAULT_BENCH,gaps:gaps,met:met,notAssessed:notAssessed,
+    assessed:assessed,gapPct:gapPct,metPct:metPct,gapList:gapList,metList:metList};
+}
+
+function rGapSummary(){
+  var cg=calcCapabilityGaps();
+  var eg=calcEvidenceGaps();
+  var h='<div style="padding:16px 20px 0">'
+    +'<button onclick="backToReports()" style="background:#0f2040;border:1px solid #1e3a5f;border-radius:6px;color:#60a5fa;font-size:12px;font-weight:700;padding:6px 14px;cursor:pointer">&#8592; Back to Reports</button>'
+    +'</div><div style="padding:14px 20px">';
+  h+='<div style="background:linear-gradient(135deg,#0a1628,#0f2040);border:1px solid #1e3a5f;border-radius:14px;padding:24px;margin-bottom:16px">';
+  h+='<div style="font-size:10px;font-weight:700;color:#f5a623;letter-spacing:2px;margin-bottom:8px">MIRAI AXIS SCALEOS™ — CAPABILITY GAP ANALYSIS</div>';
+  h+='<div style="font-size:14px;color:#94a3b8;margin-bottom:16px">Benchmark set by Mirai Axis. Capabilities scoring below benchmark are gaps.</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">';
+  h+='<div style="background:#1a0808;border:2px solid #ef4444;border-radius:12px;padding:20px;text-align:center">';
+  h+='<div style="font-size:11px;font-weight:700;color:#ef4444;letter-spacing:1.5px;margin-bottom:8px">CAPABILITY GAPS</div>';
+  h+='<div style="font-size:56px;font-weight:900;color:#ef4444;line-height:1">'+cg.gaps+'</div>';
+  h+='<div style="font-size:13px;color:#94a3b8;margin-top:6px">of '+cg.assessed+' assessed — '+cg.gapPct+'%</div>';
+  h+='<div style="font-size:11px;color:#64748b;margin-top:4px">below capability benchmark</div></div>';
+  h+='<div style="background:#081a08;border:2px solid #22c55e;border-radius:12px;padding:20px;text-align:center">';
+  h+='<div style="font-size:11px;font-weight:700;color:#22c55e;letter-spacing:1.5px;margin-bottom:8px">BENCHMARK MET</div>';
+  h+='<div style="font-size:56px;font-weight:900;color:#22c55e;line-height:1">'+cg.met+'</div>';
+  h+='<div style="font-size:13px;color:#94a3b8;margin-top:6px">of '+cg.assessed+' assessed — '+cg.metPct+'%</div>';
+  h+='<div style="font-size:11px;color:#64748b;margin-top:4px">at or above benchmark</div></div></div>';
+  h+='<div style="height:10px;background:#1e3a5f;border-radius:5px;overflow:hidden;margin-bottom:6px">';
+  h+='<div style="display:flex;height:10px"><div style="width:'+cg.gapPct+'%;background:#ef4444"></div><div style="width:'+cg.metPct+'%;background:#22c55e"></div></div></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:10px;color:#475569">';
+  h+='<span>?? '+cg.gaps+' Gaps ('+cg.gapPct+'%)</span><span>?? '+cg.met+' Met ('+cg.metPct+'%)</span></div></div>';
+  h+='<div style="background:#0a1628;border:1px solid #f97316;border-left:4px solid #f97316;border-radius:10px;padding:16px 20px;margin-bottom:16px">';
+  h+='<div style="font-size:10px;font-weight:700;color:#f97316;letter-spacing:2px;margin-bottom:14px">⚠️ CRITICAL OBSERVATIONS — WITHIN THE GAPS</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">';
+  h+='<div style="background:#1a0808;border:1px solid #ef4444;border-radius:8px;padding:14px;text-align:center">';
+  h+='<div style="font-size:9px;font-weight:700;color:#ef4444;letter-spacing:1px;margin-bottom:6px">?? NO EVIDENCE</div>';
+  h+='<div style="font-size:32px;font-weight:900;color:#ef4444">'+eg.noEvidence+'</div>';
+  h+='<div style="font-size:10px;color:#64748b;margin-top:4px">of 99 capabilities</div>';
+  h+='<div style="font-size:10px;color:#94a3b8;margin-top:6px;line-height:1.5">E=1. Cannot be verified.</div></div>';
+  h+='<div style="background:#1a0a00;border:1px solid #f97316;border-radius:8px;padding:14px;text-align:center">';
+  h+='<div style="font-size:9px;font-weight:700;color:#f97316;letter-spacing:1px;margin-bottom:6px">⚠️ CLAIMED NOT PROVEN</div>';
+  h+='<div style="font-size:32px;font-weight:900;color:#f97316">'+eg.claimedNotProven+'</div>';
+  h+='<div style="font-size:10px;color:#64748b;margin-top:4px">of 99 capabilities</div>';
+  h+='<div style="font-size:10px;color:#94a3b8;margin-top:6px;line-height:1.5">M≥3 but E=1. High score, no evidence.</div></div>';
+  h+='<div style="background:#1a1400;border:1px solid #eab308;border-radius:8px;padding:14px;text-align:center">';
+  h+='<div style="font-size:9px;font-weight:700;color:#eab308;letter-spacing:1px;margin-bottom:6px">?? NOT DEPLOYED</div>';
+  h+='<div style="font-size:32px;font-weight:900;color:#eab308">'+eg.notDeployed+'</div>';
+  h+='<div style="font-size:10px;color:#64748b;margin-top:4px">of 99 capabilities</div>';
+  h+='<div style="font-size:10px;color:#94a3b8;margin-top:6px;line-height:1.5">On paper. Not in practice.</div></div></div>';
+  h+='<div style="margin-top:12px;padding:10px 14px;background:#0d1b2e;border-radius:6px;font-size:11px;color:#64748b;line-height:1.6">';
+  h+='<strong style="color:#f5a623">Outside-In Workshop Agenda:</strong> Claimed Not Proven capabilities are the first conversation. That gap between perception and reality is where Mirai Axis adds the most value.</div></div>';
+  h+='<div style="font-size:12px;font-weight:700;color:#ef4444;margin-bottom:8px">Top Capability Gaps — Ranked by Gap Size</div>';
+  h+='<div style="background:#0a1628;border:1px solid #1e3a5f;border-radius:10px;overflow:hidden;margin-bottom:14px">';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:11px">';
+  h+='<thead><tr style="background:#0d1b2e"><th style="padding:10px 14px;text-align:left;color:#64748b">Capability</th><th style="padding:10px 14px;text-align:left;color:#64748b">Dimension</th><th style="padding:10px 8px;text-align:center;color:#64748b">SCI</th><th style="padding:10px 8px;text-align:center;color:#64748b">Benchmark</th><th style="padding:10px 8px;text-align:center;color:#64748b">Gap</th><th style="padding:10px 8px;text-align:center;color:#64748b">Status</th></tr></thead><tbody>';
+  cg.gapList.slice(0,15).forEach(function(r,i){
+    var col=scol(r.score);
+    var lbl=r.score<2?'Critical':r.score<3?'Developing':'Progressing';
+    var bg=i%2===0?'#0a1628':'#0d1b2e';
+    h+='<tr style="background:'+bg+';border-top:1px solid #1e3a5f">';
+    h+='<td style="padding:8px 14px;color:#e2e8f0">'+r.cap+'<div style="font-size:10px;color:#475569">'+r.name+'</div></td>';
+    h+='<td style="padding:8px 14px"><span style="color:'+r.color+';font-weight:700;font-size:10px">'+r.dim+'</span></td>';
+    h+='<td style="padding:8px;text-align:center;font-weight:700;color:'+col+'">'+r.score.toFixed(2)+'</td>';
+    h+='<td style="padding:8px;text-align:center;color:#60a5fa">'+r.bench.toFixed(1)+'</td>';
+    h+='<td style="padding:8px;text-align:center;font-weight:700;color:#ef4444">−'+r.gap.toFixed(2)+'</td>';
+    h+='<td style="padding:8px;text-align:center"><span style="background:'+col+'22;border:1px solid '+col+';border-radius:4px;padding:2px 8px;font-size:10px;color:'+col+'">'+lbl+'</span></td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+  h+='<div style="background:#06101e;border:1px solid #334155;border-radius:8px;padding:10px 14px;font-size:10.5px;color:#64748b;line-height:1.6">';
+  h+='⚠️ <strong style="color:#94a3b8">Phase 1 Note:</strong> Gap analysis uses benchmarks set by Mirai Axis in Baseline Setup. Adjust benchmarks per client industry and growth ambition.</div>';
+  h+='</div>';
+  return h;
+}
+
+
 window.addEventListener('load', function(){
   if(loadState()){
     var ov = document.getElementById('intake-overlay');
@@ -4100,15 +4390,24 @@ addEventListener('load', function(){
     <button class="sg-tab active" onclick="sgTab(this,'sgM')">&#127775; Maturity</button>
     <button class="sg-tab" onclick="sgTab(this,'sgE')">&#128196; Evidence</button>
     <button class="sg-tab" onclick="sgTab(this,'sgD')">&#128640; Deployment</button>
+    <button class="sg-tab" onclick="sgTab(this,'sgS')">&#128200; SCI Score Band</button>
    </div>
    <div class="sg-panel" id="sgM"></div>
    <div class="sg-panel" id="sgE" style="display:none"></div>
    <div class="sg-panel" id="sgD" style="display:none"></div>
+   <div class="sg-panel" id="sgS" style="display:none"></div>
   </div>
  </div>
 </div>
 
 <script>
+var SG_S=[
+  'Critical — Foundation Required (SCI below 2.0) — Significant gaps across critical capabilities. Immediate leadership intervention required before any growth initiative.',
+  'Developing — Key Gaps Present (SCI 2.0–2.99) — Some foundations in place but key capabilities remain underdeveloped. Targeted improvement plans needed.',
+  'Progressing — Building Momentum (SCI 3.0–3.99) — A reasonable foundation exists. Focused effort on lower-scoring capabilities will accelerate growth readiness.',
+  'Well Managed — Strong Foundation (SCI 4.0–4.49) — Strong capability foundation. The enterprise is positioned to scale with selective investment.',
+  'World Class (SCI 4.5–5.0) — Best-in-class capability across all dimensions. Benchmark enterprise. Sustain and extend.'
+];
 var SG_M=[
   'Not Established — The capability does not exist. No process, no practice, no ownership.',
   'Partially Established — Exists informally or inconsistently. Dependent on individuals, not the system.',
@@ -4142,6 +4441,17 @@ function openScoreGuide(){
   var m=document.getElementById('sgM'); if(m) m.innerHTML=band(SG_M);
   var e=document.getElementById('sgE'); if(e) e.innerHTML=band(SG_E);
   var d=document.getElementById('sgD'); if(d) d.innerHTML=band(SG_D);
+  var ss=document.getElementById('sgS');
+  if(ss){
+    var cols=['#ef4444','#f97316','#eab308','#22c55e','#a78bfa'];
+    var labels=['<2.0','2.0–2.99','3.0–3.99','4.0–4.49','4.5–5.0'];
+    ss.innerHTML=SG_S.map(function(t,i){
+      return '<div class="sg-lv" style="margin-bottom:10px">'
+        +'<div style="min-width:60px;height:28px;border-radius:6px;background:'+cols[i]+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;flex-shrink:0;padding:0 6px">'+labels[i]+'</div>'
+        +'<div class="sg-lt">'+t+'</div>'
+        +'</div>';
+    }).join('');
+  }
   ov.style.display='flex';
   document.body.style.overflow='hidden';
 }
