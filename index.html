@@ -2589,10 +2589,40 @@ function rSummary(){
 }
 
 
-function genCEORpt(){
-  if(typeof JSZip==='undefined'){
-    toast('Loading report engine... please try again in 3 seconds','t-a',3000); return;
+function ensureJSZip(cb, attempt){
+  attempt = attempt || 1;
+  if(typeof JSZip !== 'undefined'){ cb(); return; }
+  if(attempt === 1){
+    toast('Loading report engine\u2026','t-b',3000);
   }
+  if(attempt > 6){
+    toast('Report engine could not load. Check your internet connection and try again.','t-a',6000);
+    return;
+  }
+  // Try to (re)inject JSZip from CDN with fallback
+  if(!document.getElementById('jszip-loader')){
+    var s=document.createElement('script');
+    s.id='jszip-loader';
+    s.src='https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+    s.onerror=function(){
+      // Fallback CDN
+      var s2=document.createElement('script');
+      s2.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+      document.head.appendChild(s2);
+    };
+    document.head.appendChild(s);
+  }
+  setTimeout(function(){ ensureJSZip(cb, attempt+1); }, 700);
+}
+
+function genCEORpt(){
+  ensureJSZip(function(){
+    try { genCEORpt_core(); }
+    catch(e){ toast('Error generating report: '+e.message,'t-a',5000); console.error(e); }
+  });
+}
+
+function genCEORpt_core(){
   toast('Generating CEO Report...','t-b',4000);
 
   var es=entSCI();
@@ -4128,10 +4158,6 @@ if(!localStorage.getItem(LS_KEY)){
 }
 ;
 
-// Restore saved state if exists
-
-itST();
-// Restore saved state if exists
 function setDimBL(di, val){
   DIMS[di].caps.forEach(function(_,ci){
     BL[di][ci] = parseFloat(val);
